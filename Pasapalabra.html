@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Pasapalabra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --color-fondo: #0F1B2B;
+    --color-panel: #16263B;
+    --color-panel-borde: #223350;
+    --color-celda-borde: #2A3F5C;
+    --color-celda-texto: #7F97B3;
+    --color-activa: #E8B94E;
+    --color-activa-texto: #12203A;
+    --color-correcta: #4CAF7D;
+    --color-incorrecta: #D6544A;
+    --color-neutra: #5A6B85;
+    --color-texto: #F2EFE6;
+    --color-texto-tenue: #A9B8CC;
+    --fuente-display: "Fraunces", serif;
+    --fuente-cuerpo: "Space Grotesk", sans-serif;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    margin:0; padding:0; min-height:100%;
+    background: radial-gradient(circle at 50% -10%, #1A2C45 0%, var(--color-fondo) 55%);
+    color: var(--color-texto);
+    font-family: var(--fuente-cuerpo);
+  }
+
+  .escenario{
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 20px 18px 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 14px;
+  }
+
+  h1{
+    font-family: var(--fuente-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 28px;
+    margin:0;
+    letter-spacing: 0.5px;
+  }
+
+  .marcador{
+    display:flex; gap:10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .marcador span{
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--color-panel);
+    border: 1px solid var(--color-panel-borde);
+  }
+  .marcador .aciertos{ color: var(--color-correcta); }
+  .marcador .fallos{ color: var(--color-incorrecta); }
+
+  .timer-bar-wrap{
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-panel);
+    overflow:hidden;
+    margin-bottom: 6px;
+  }
+  .timer-bar{
+    height:100%;
+    width:100%;
+    background: linear-gradient(90deg, var(--color-activa), #F4D68A);
+    transition: width 1s linear, background-color 0.4s ease;
+  }
+  .timer-texto{
+    text-align:center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--color-texto-tenue);
+    margin-bottom: 18px;
+  }
+
+  .pantalla{ flex:1; display:flex; flex-direction:column; }
+  .oculto{ display:none !important; }
+
+  #pantallaInicio{
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap: 18px;
+    padding: 10px 6px 40px;
+  }
+  #pantallaInicio .intro-letra{
+    font-family: var(--fuente-display);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 64px;
+    color: var(--color-activa);
+    line-height: 1;
+  }
+  #pantallaInicio p{
+    color: var(--color-texto-tenue);
+    font-size: 15px;
+    line-height: 1.5;
+    max-width: 320px;
+  }
+
+  .boton{
+    font-family: var(--fuente-cuerpo);
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 22px;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .boton-principal{
+    background: var(--color-activa);
+    color: var(--color-activa-texto);
+    box-shadow: 0 8px 20px -6px rgba(232,185,78,0.55);
+  }
+  .boton-principal:active{ transform: scale(0.97); }
+
+  /* ---- ROSCO ---- */
+  .rosco{
+    position: relative;
+    width: min(84vw, 360px);
+    aspect-ratio: 1;
+    margin: 6px auto 22px;
+    border-radius: 50%;
+  }
+  .rosco::before{
+    content:'';
+    position:absolute;
+    inset: -6%;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(232,185,78,0.16) 55deg, transparent 130deg, transparent 360deg);
+    animation: girar-foco 14s linear infinite;
+    z-index: 0;
+  }
+  @keyframes girar-foco{ to{ transform: rotate(360deg); } }
+
+  .rosco-centro{
+    position:absolute; top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    text-align:center;
+    z-index: 2;
+    pointer-events:none;
+  }
+  .rosco-centro .letra-grande{
+    font-family: var(--fuente-display);
+    font-style: italic;
+    font-weight: 900;
+    font-size: 46px;
+    color: var(--color-activa);
+    line-height:1;
+  }
+  .rosco-centro .contador-mini{
+    font-size: 11px;
+    color: var(--color-texto-tenue);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .celda{
+    position:absolute;
+    width: 13%;
+    aspect-ratio: 1;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700;
+    font-size: 13px;
+    background: var(--color-panel);
+    color: var(--color-celda-texto);
+    border: 1.5px solid var(--color-celda-borde);
+    z-index: 1;
+    transition: all 0.35s ease;
+  }
+  .celda.activa{
+    background: var(--color-activa);
+    color: var(--color-activa-texto);
+    border-color: var(--color-activa);
+    transform: translate(-50%,-50%) scale(1.28);
+    box-shadow: 0 0 0 6px rgba(232,185,78,0.22);
+  }
+  .celda.correcta{ background: var(--color-correcta); color:#0D2318; border-color: var(--color-correcta); }
+  .celda.incorrecta{ background: var(--color-incorrecta); color:#2B0B08; border-color: var(--color-incorrecta); }
+  .celda.pasada{ border-style: dashed; border-color: var(--color-activa); }
+  .celda.sin-responder{ background: var(--color-panel); color: var(--color-neutra); border-color: var(--color-neutra); opacity: 0.6; }
+
+  /* ---- PREGUNTA ---- */
+  .pregunta-card{
+    background: var(--color-panel);
+    border: 1px solid var(--color-panel-borde);
+    border-radius: 20px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+  .pregunta-tipo{
+    margin:0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-activa);
+  }
+  .pregunta-texto{
+    margin:0;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--color-texto);
+  }
+  .respuesta-texto{
+    margin:0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-correcta);
+    background: rgba(76,175,125,0.12);
+    border: 1px solid rgba(76,175,125,0.35);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .botones{
+    display:flex; gap: 10px;
+  }
+  .botones .boton{ flex:1; }
+  #btnPasa{ background: transparent; color: var(--color-texto-tenue); border: 1.5px solid var(--color-panel-borde); }
+  #btnVer{ background: var(--color-activa); color: var(--color-activa-texto); }
+  .btn-fallo{ background: var(--color-incorrecta); color: #fff; }
+  .btn-acierto{ background: var(--color-correcta); color: #fff; }
+
+  .flash-correcta{ animation: destello-verde 0.5s ease; }
+  .flash-incorrecta{ animation: destello-rojo 0.5s ease; }
+  @keyframes destello-verde{ 0%{ box-shadow: inset 0 0 0 3px var(--color-correcta);} 100%{ box-shadow: inset 0 0 0 0 transparent; } }
+  @keyframes destello-rojo{ 0%{ box-shadow: inset 0 0 0 3px var(--color-incorrecta);} 100%{ box-shadow: inset 0 0 0 0 transparent; } }
+
+  /* ---- FIN ---- */
+  #pantallaFin{
+    align-items:center;
+    text-align:center;
+    justify-content:center;
+    gap: 14px;
+  }
+  #finTitulo{
+    font-family: var(--fuente-display);
+    font-style: italic;
+    font-size: 30px;
+    margin: 0;
+  }
+  #finResumen{
+    color: var(--color-texto-tenue);
+    font-size: 15px;
+    margin: 0 0 6px;
+  }
+  .rosco-final{
+    position: relative;
+    width: min(72vw, 300px);
+    aspect-ratio: 1;
+    margin: 4px auto 18px;
+  }
+  .rosco-final .celda{ cursor:default; }
+
+  @media (prefers-reduced-motion: reduce){
+    .rosco::before{ animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="escenario">
+
+  <header>
+    <h1>Pasapalabra</h1>
+    <div class="marcador">
+      <span class="aciertos" id="marcadorAciertos">✓ 0</span>
+      <span class="fallos" id="marcadorFallos">✗ 0</span>
+    </div>
+  </header>
+
+  <div class="timer-bar-wrap"><div class="timer-bar" id="barraTiempo"></div></div>
+  <div class="timer-texto" id="textoTiempo">02:30</div>
+
+  <div class="pantalla" id="pantallaInicio">
+    <div class="intro-letra">Ñ</div>
+    <p>25 letras, una pregunta por cada una y dos minutos y medio en el reloj. Pasapalabra si dudas, pero cuidado: vuelve al final de la cola. ¿Completas el rosco?</p>
+    <button class="boton boton-principal" id="btnJugar">Empezar a jugar</button>
+  </div>
+
+  <div class="pantalla oculto" id="pantallaJuego">
+    <div class="rosco" id="rosco">
+      <div class="rosco-centro">
+        <div class="letra-grande" id="letraGrande">A</div>
+        <div class="contador-mini" id="contadorMini">Letra 1 de 25</div>
+      </div>
+    </div>
+
+    <div class="pregunta-card">
+      <p class="pregunta-tipo" id="preguntaTipo">Empieza por A</p>
+      <p class="pregunta-texto" id="preguntaTexto"></p>
+      <p class="respuesta-texto oculto" id="respuestaTexto"></p>
+
+      <div class="botones" id="botonesPre">
+        <button class="boton" id="btnPasa">Pasapalabra</button>
+        <button class="boton" id="btnVer">Ver respuesta</button>
+      </div>
+      <div class="botones oculto" id="botonesPost">
+        <button class="boton btn-fallo" id="btnFalle">Fallé</button>
+        <button class="boton btn-acierto" id="btnAcerte">Acerté</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pantalla oculto" id="pantallaFin">
+    <h2 id="finTitulo"></h2>
+    <p id="finResumen"></p>
+    <div class="rosco-final" id="roscoFinal"></div>
+    <button class="boton boton-principal" id="btnReiniciar">Jugar otra vez</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CONFIG = {
+    DURACION_SEGUNDOS: 150,
+    RADIO_PORCENTAJE: 42,
+    TAMANO_CELDA_PORCENTAJE: 13,
+    UMBRAL_TIEMPO_URGENTE: 20,
+    LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
+  };
+
+  var BANCO_PREGUNTAS = {
+    A: [
+      { tipo: "Empieza por A", texto: "Ave rapaz, símbolo de Estados Unidos y de la libertad.", respuesta: "Águila" },
+      { tipo: "Empieza por A", texto: "Instrumento musical de cuerda, de forma triangular.", respuesta: "Arpa" }
+    ],
+    B: [
+      { tipo: "Empieza por B", texto: "Mamífero marino, el animal más grande que existe.", respuesta: "Ballena" },
+      { tipo: "Empieza por B", texto: "Danza clásica que se baila de puntillas.", respuesta: "Ballet" }
+    ],
+    C: [
+      { tipo: "Empieza por C", texto: "Órgano que bombea la sangre por todo el cuerpo.", respuesta: "Corazón" },
+      { tipo: "Empieza por C", texto: "País sudamericano cuya capital es Santiago.", respuesta: "Chile" }
+    ],
+    D: [
+      { tipo: "Empieza por D", texto: "Figura geométrica de diez lados.", respuesta: "Decágono" },
+      { tipo: "Empieza por D", texto: "Dios griego del vino y las fiestas.", respuesta: "Dionisio" }
+    ],
+    E: [
+      { tipo: "Empieza por E", texto: "País europeo cuya capital es Madrid.", respuesta: "España" },
+      { tipo: "Empieza por E", texto: "Continente donde se encuentra España.", respuesta: "Europa" }
+    ],
+    F: [
+      { tipo: "Empieza por F", texto: "Ciencia que estudia el movimiento, la energía y la materia.", respuesta: "Física" },
+      { tipo: "Empieza por F", texto: "Nombre de las fiestas de Pamplona en las que corren los toros, San ____.", respuesta: "Fermín" }
+    ],
+    G: [
+      { tipo: "Empieza por G", texto: "Ave doméstica de corral que canta al amanecer.", respuesta: "Gallo" },
+      { tipo: "Empieza por G", texto: "País centroamericano cuya capital es Ciudad de Guatemala.", respuesta: "Guatemala" }
+    ],
+    H: [
+      { tipo: "Empieza por H", texto: "País europeo cuya capital es Budapest.", respuesta: "Hungría" },
+      { tipo: "Empieza por H", texto: "Físico británico famoso por sus estudios sobre los agujeros negros.", respuesta: "Hawking" }
+    ],
+    I: [
+      { tipo: "Empieza por I", texto: "País europeo con forma de bota.", respuesta: "Italia" },
+      { tipo: "Empieza por I", texto: "País escandinavo conocido por sus volcanes y géiseres.", respuesta: "Islandia" }
+    ],
+    J: [
+      { tipo: "Empieza por J", texto: "Día de la semana entre el miércoles y el viernes.", respuesta: "Jueves" },
+      { tipo: "Empieza por J", texto: "Planeta más grande del sistema solar.", respuesta: "Júpiter" }
+    ],
+    L: [
+      { tipo: "Empieza por L", texto: "Felino de gran melena, conocido como el rey de la selva.", respuesta: "León" },
+      { tipo: "Empieza por L", texto: "Diminuto país europeo situado entre Suiza y Austria.", respuesta: "Liechtenstein" }
+    ],
+    M: [
+      { tipo: "Empieza por M", texto: "Capital de España.", respuesta: "Madrid" },
+      { tipo: "Empieza por M", texto: "Planeta conocido como el planeta rojo.", respuesta: "Marte" }
+    ],
+    N: [
+      { tipo: "Empieza por N", texto: "País escandinavo famoso por sus fiordos.", respuesta: "Noruega" },
+      { tipo: "Empieza por N", texto: "Nombre que recibe la mitad superior del continente americano.", respuesta: "Norteamérica" }
+    ],
+    "Ñ": [
+      { tipo: "Contiene la Ñ", texto: "Animal de ocho patas que teje una tela para cazar insectos.", respuesta: "Araña" },
+      { tipo: "Contiene la Ñ", texto: "Fruta tropical cubierta de escamas, con una corona de hojas en la punta.", respuesta: "Piña" }
+    ],
+    O: [
+      { tipo: "Empieza por O", texto: "Continente donde se encuentra Australia.", respuesta: "Oceanía" },
+      { tipo: "Empieza por O", texto: "Instrumento musical de tubos, típico de las iglesias.", respuesta: "Órgano" }
+    ],
+    P: [
+      { tipo: "Empieza por P", texto: "País sudamericano donde se encuentra Machu Picchu.", respuesta: "Perú" },
+      { tipo: "Empieza por P", texto: "Ave que no vuela, de plumaje blanco y negro, típica de la Antártida.", respuesta: "Pingüino" }
+    ],
+    Q: [
+      { tipo: "Empieza por Q", texto: "Alimento sólido elaborado a partir de leche cuajada.", respuesta: "Queso" },
+      { tipo: "Empieza por Q", texto: "Producto lácteo que se vende en variedades como el manchego o el brie.", respuesta: "Queso" }
+    ],
+    R: [
+      { tipo: "Empieza por R", texto: "Anfibio verde que vive cerca del agua y dice \"croac\".", respuesta: "Rana" },
+      { tipo: "Empieza por R", texto: "País europeo cuya capital es Bucarest.", respuesta: "Rumanía" }
+    ],
+    S: [
+      { tipo: "Empieza por S", texto: "Estrella que ilumina nuestro sistema solar.", respuesta: "Sol" },
+      { tipo: "Empieza por S", texto: "País asiático con forma de lágrima, situado junto a la India.", respuesta: "Sri Lanka" }
+    ],
+    T: [
+      { tipo: "Empieza por T", texto: "País situado entre Europa y Asia, cuya capital es Ankara.", respuesta: "Turquía" },
+      { tipo: "Empieza por T", texto: "Reptil de caparazón duro, muy longevo, símbolo de lentitud.", respuesta: "Tortuga" }
+    ],
+    U: [
+      { tipo: "Empieza por U", texto: "Institución donde se cursan estudios superiores tras el instituto.", respuesta: "Universidad" },
+      { tipo: "Empieza por U", texto: "País sudamericano cuya capital es Montevideo.", respuesta: "Uruguay" }
+    ],
+    V: [
+      { tipo: "Empieza por V", texto: "Pintor español autor de \"Las Meninas\".", respuesta: "Velázquez" },
+      { tipo: "Empieza por V", texto: "Montaña que expulsa lava, cenizas y gases desde su interior.", respuesta: "Volcán" }
+    ],
+    X: [
+      { tipo: "Empieza por X", texto: "Instrumento de percusión formado por láminas de madera que se golpean con baquetas.", respuesta: "Xilófono" },
+      { tipo: "Contiene la X", texto: "Prueba médica que usa un tipo de rayos para fotografiar los huesos.", respuesta: "Rayos X" }
+    ],
+    Y: [
+      { tipo: "Empieza por Y", texto: "Postre lácteo cremoso y fermentado, muy habitual en el desayuno.", respuesta: "Yogur" },
+      { tipo: "Empieza por Y", texto: "Producto lácteo fermentado que también se usa para hacer salsas frías.", respuesta: "Yogur" }
+    ],
+    Z: [
+      { tipo: "Empieza por Z", texto: "Mamífero astuto, de hocico puntiagudo y cola larga, protagonista de muchas fábulas.", respuesta: "Zorro" },
+      { tipo: "Empieza por Z", texto: "Calzado que cubre y protege el pie, se usa a diario.", respuesta: "Zapato" }
+    ]
+  };
+
+  // ---- Referencias al DOM ----
+  var elPantallaInicio = document.getElementById("pantallaInicio");
+  var elPantallaJuego = document.getElementById("pantallaJuego");
+  var elPantallaFin = document.getElementById("pantallaFin");
+  var elBtnJugar = document.getElementById("btnJugar");
+  var elRosco = document.getElementById("rosco");
+  var elLetraGrande = document.getElementById("letraGrande");
+  var elContadorMini = document.getElementById("contadorMini");
+  var elPreguntaTipo = document.getElementById("preguntaTipo");
+  var elPreguntaTexto = document.getElementById("preguntaTexto");
+  var elRespuestaTexto = document.getElementById("respuestaTexto");
+  var elBotonesPre = document.getElementById("botonesPre");
+  var elBotonesPost = document.getElementById("botonesPost");
+  var elBtnPasa = document.getElementById("btnPasa");
+  var elBtnVer = document.getElementById("btnVer");
+  var elBtnFalle = document.getElementById("btnFalle");
+  var elBtnAcerte = document.getElementById("btnAcerte");
+  var elBarraTiempo = document.getElementById("barraTiempo");
+  var elTextoTiempo = document.getElementById("textoTiempo");
+  var elMarcadorAciertos = document.getElementById("marcadorAciertos");
+  var elMarcadorFallos = document.getElementById("marcadorFallos");
+  var elFinTitulo = document.getElementById("finTitulo");
+  var elFinResumen = document.getElementById("finResumen");
+  var elRoscoFinal = document.getElementById("roscoFinal");
+  var elBtnReiniciar = document.getElementById("btnReiniciar");
+  var elPreguntaCard = document.querySelector(".pregunta-card");
+
+  // ---- Estado del juego ----
+  var estadoLetras = [];   // paralelo a CONFIG.LETRAS_ROSCO
+  var colaTurnos = [];     // índices pendientes, en orden de turno
+  var punteroTurno = 0;
+  var segundosRestantes = CONFIG.DURACION_SEGUNDOS;
+  var idIntervalo = null;
+  var celdasDom = [];
+
+  function elegirPreguntaAleatoria(letra){
+    var opciones = BANCO_PREGUNTAS[letra];
+    return opciones[Math.floor(Math.random() * opciones.length)];
+  }
+
+  function vibrar(patron){
+    if (navigator.vibrate) { try { navigator.vibrate(patron); } catch (e) { /* no soportado */ } }
+  }
+
+  function construirRosco(){
+    elRosco.querySelectorAll(".celda").forEach(function(c){ c.remove(); });
+    celdasDom = [];
+    var n = CONFIG.LETRAS_ROSCO.length;
+    for (var i = 0; i < n; i++){
+      var angulo = (i / n) * 2 * Math.PI - Math.PI / 2;
+      var x = 50 + CONFIG.RADIO_PORCENTAJE * Math.cos(angulo);
+      var y = 50 + CONFIG.RADIO_PORCENTAJE * Math.sin(angulo);
+      var celda = document.createElement("div");
+      celda.className = "celda";
+      celda.style.left = x.toFixed(3) + "%";
+      celda.style.top = y.toFixed(3) + "%";
+      celda.style.width = CONFIG.TAMANO_CELDA_PORCENTAJE + "%";
+      celda.textContent = CONFIG.LETRAS_ROSCO[i];
+      elRosco.appendChild(celda);
+      celdasDom.push(celda);
+    }
+  }
+
+  function iniciarPartida(){
+    estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra){
+      var p = elegirPreguntaAleatoria(letra);
+      return { letra: letra, tipo: p.tipo, texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
+    });
+    colaTurnos = estadoLetras.map(function(_, i){ return i; });
+    punteroTurno = 0;
+    segundosRestantes = CONFIG.DURACION_SEGUNDOS;
+
+    construirRosco();
+    actualizarMarcador();
+    actualizarBarraTiempo();
+
+    elPantallaInicio.classList.add("oculto");
+    elPantallaFin.classList.add("oculto");
+    elPantallaJuego.classList.remove("oculto");
+
+    mostrarTurnoActual();
+
+    if (idIntervalo) clearInterval(idIntervalo);
+    idIntervalo = setInterval(tick, 1000);
+  }
+
+  function indiceActual(){
+    return colaTurnos[punteroTurno % colaTurnos.length];
+  }
+
+  function mostrarTurnoActual(){
+    if (colaTurnos.length === 0){ finalizarPartida("completado"); return; }
+
+    var idx = indiceActual();
+    var item = estadoLetras[idx];
+
+    celdasDom.forEach(function(c){ c.classList.remove("activa"); });
+    celdasDom[idx].classList.add("activa");
+
+    elLetraGrande.textContent = item.letra;
+    elContadorMini.textContent = "Quedan " + colaTurnos.length + " de 25";
+    elPreguntaTipo.textContent = item.tipo;
+    elPreguntaTexto.textContent = item.texto;
+    elRespuestaTexto.textContent = item.respuesta;
+    elRespuestaTexto.classList.add("oculto");
+    elBotonesPre.classList.remove("oculto");
+    elBotonesPost.classList.add("oculto");
+  }
+
+  function pasarPalabra(){
+    if (colaTurnos.length <= 1) return; // pasar no tiene sentido si solo queda una
+    var idx = indiceActual();
+    estadoLetras[idx].pasada = true;
+    celdasDom[idx].classList.add("pasada");
+    colaTurnos.splice(punteroTurno, 1);
+    colaTurnos.push(idx);
+    if (punteroTurno >= colaTurnos.length) punteroTurno = 0;
+    mostrarTurnoActual();
+  }
+
+  function verRespuesta(){
+    elRespuestaTexto.classList.remove("oculto");
+    elBotonesPre.classList.add("oculto");
+    elBotonesPost.classList.remove("oculto");
+  }
+
+  function resolverTurno(acierto){
+    var idx = indiceActual();
+    estadoLetras[idx].estado = acierto ? "correcta" : "incorrecta";
+    celdasDom[idx].classList.remove("activa", "pasada");
+    celdasDom[idx].classList.add(acierto ? "correcta" : "incorrecta");
+
+    elPreguntaCard.classList.remove("flash-correcta", "flash-incorrecta");
+    void elPreguntaCard.offsetWidth;
+    elPreguntaCard.classList.add(acierto ? "flash-correcta" : "flash-incorrecta");
+    vibrar(acierto ? 45 : [40, 40, 40]);
+
+    colaTurnos.splice(punteroTurno, 1);
+    if (colaTurnos.length > 0 && punteroTurno >= colaTurnos.length) punteroTurno = 0;
+
+    actualizarMarcador();
+    mostrarTurnoActual();
+  }
+
+  function actualizarMarcador(){
+    var aciertos = estadoLetras.filter(function(i){ return i.estado === "correcta"; }).length;
+    var fallos = estadoLetras.filter(function(i){ return i.estado === "incorrecta"; }).length;
+    elMarcadorAciertos.textContent = "✓ " + aciertos;
+    elMarcadorFallos.textContent = "✗ " + fallos;
+  }
+
+  function actualizarBarraTiempo(){
+    var porcentaje = Math.max(0, (segundosRestantes / CONFIG.DURACION_SEGUNDOS) * 100);
+    elBarraTiempo.style.width = porcentaje + "%";
+    if (segundosRestantes <= CONFIG.UMBRAL_TIEMPO_URGENTE){
+      elBarraTiempo.style.background = "linear-gradient(90deg, var(--color-incorrecta), #F08A80)";
+    } else {
+      elBarraTiempo.style.background = "linear-gradient(90deg, var(--color-activa), #F4D68A)";
+    }
+    var m = Math.floor(segundosRestantes / 60);
+    var s = segundosRestantes % 60;
+    elTextoTiempo.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function tick(){
+    segundosRestantes--;
+    actualizarBarraTiempo();
+    if (segundosRestantes <= 0){
+      finalizarPartida("tiempo");
+    }
+  }
+
+  function finalizarPartida(motivo){
+    clearInterval(idIntervalo);
+    idIntervalo = null;
+
+    estadoLetras.forEach(function(item, idx){
+      if (item.estado === "pendiente"){
+        item.estado = "sin-responder";
+        celdasDom[idx].classList.remove("activa", "pasada");
+        celdasDom[idx].classList.add("sin-responder");
+      }
+    });
+
+    var aciertos = estadoLetras.filter(function(i){ return i.estado === "correcta"; }).length;
+    var fallos = estadoLetras.filter(function(i){ return i.estado === "incorrecta"; }).length;
+    var sinResponder = estadoLetras.filter(function(i){ return i.estado === "sin-responder"; }).length;
+
+    elFinTitulo.textContent = motivo === "tiempo" ? "¡Se acabó el tiempo!" : "¡Rosco completado!";
+
+    var mensajeNivel;
+    if (aciertos === 25) mensajeNivel = "¡Rosco perfecto! 🏆";
+    else if (aciertos >= 20) mensajeNivel = "¡Nivel crack! 🔥";
+    else if (aciertos >= 15) mensajeNivel = "Muy buena partida 👏";
+    else if (aciertos >= 10) mensajeNivel = "Nada mal 💪";
+    else mensajeNivel = "A seguir practicando 📚";
+
+    elFinResumen.textContent = mensajeNivel + " — Aciertos: " + aciertos + " · Fallos: " + fallos + (sinResponder > 0 ? " · Sin responder: " + sinResponder : "");
+
+    construirRoscoFinal();
+
+    elPantallaJuego.classList.add("oculto");
+    elPantallaFin.classList.remove("oculto");
+  }
+
+  function construirRoscoFinal(){
+    elRoscoFinal.innerHTML = "";
+    var n = CONFIG.LETRAS_ROSCO.length;
+    for (var i = 0; i < n; i++){
+      var angulo = (i / n) * 2 * Math.PI - Math.PI / 2;
+      var x = 50 + CONFIG.RADIO_PORCENTAJE * Math.cos(angulo);
+      var y = 50 + CONFIG.RADIO_PORCENTAJE * Math.sin(angulo);
+      var celda = document.createElement("div");
+      var item = estadoLetras[i];
+      celda.className = "celda " + item.estado;
+      celda.style.left = x.toFixed(3) + "%";
+      celda.style.top = y.toFixed(3) + "%";
+      celda.style.width = CONFIG.TAMANO_CELDA_PORCENTAJE + "%";
+      celda.textContent = item.letra;
+      elRoscoFinal.appendChild(celda);
+    }
+  }
+
+  // ---- Eventos ----
+  elBtnJugar.addEventListener("click", iniciarPartida);
+  elBtnPasa.addEventListener("click", pasarPalabra);
+  elBtnVer.addEventListener("click", verRespuesta);
+  elBtnFalle.addEventListener("click", function(){ resolverTurno(false); });
+  elBtnAcerte.addEventListener("click", function(){ resolverTurno(true); });
+  elBtnReiniciar.addEventListener("click", iniciarPartida);
+
+})();
+</script>
+</body>
+</html>
