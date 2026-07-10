@@ -239,7 +239,7 @@
 
   .celda{
     position:absolute;
-    width: 8.6%;
+    width: 8%;
     aspect-ratio: 1;
     transform: translate(-50%,-50%);
     border-radius: 50%;
@@ -349,17 +349,19 @@
 
   var CONFIG = {
     RADIO_PORCENTAJE: 43,
-    TAMANO_CELDA_PORCENTAJE: 8.6,
+    TAMANO_CELDA_PORCENTAJE: 8.0,
     RETARDO_TRANSICION_MS: 1000,
     VOLUMEN_MUSICA: 0.35,
-    LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
+    LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
   };
 
   // El banco de preguntas (BANCO_PREGUNTAS) llega desde preguntas.js,
   // cargado antes que este script.
 
+  var LETRAS_TIPO_CONTIENE = ["K", "Ñ", "W"];
+
   function tipoParaLetra(letra){
-    return letra === "Ñ" ? "Contiene la Ñ" : "Empieza por " + letra;
+    return LETRAS_TIPO_CONTIENE.indexOf(letra) !== -1 ? "Contiene la " + letra : "Empieza por " + letra;
   }
 
   // ---- Referencias al DOM ----
