@@ -9,18 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --color-fondo: #0F1B2B;
-    --color-panel: #16263B;
-    --color-panel-borde: #223350;
-    --color-celda-borde: #2A3F5C;
-    --color-celda-texto: #7F97B3;
-    --color-activa: #E8B94E;
-    --color-activa-texto: #12203A;
-    --color-correcta: #4CAF7D;
-    --color-incorrecta: #D6544A;
-    --color-neutra: #5A6B85;
-    --color-texto: #F2EFE6;
-    --color-texto-tenue: #A9B8CC;
+    --azul-claro: #5FB3F6;
+    --azul-medio: #2E7FE0;
+    --azul-oscuro: #123E8C;
+    --azul-profundo: #0B2C66;
+    --azul-celda: #2E74DA;
+    --azul-celda-borde: rgba(255,255,255,0.45);
+    --azul-pasada: #BFE0FF;
+    --blanco: #FFFFFF;
+    --blanco-tenue: rgba(255,255,255,0.78);
+    --verde-activa: #3CC583;
+    --verde-correcta: #2FAF6E;
+    --rojo-incorrecta: #E5504A;
+    --gris-neutro: #7C93B8;
     --fuente-display: "Fraunces", serif;
     --fuente-cuerpo: "Space Grotesk", sans-serif;
   }
@@ -29,8 +30,8 @@
 
   html, body{
     margin:0; padding:0; min-height:100%;
-    background: radial-gradient(circle at 50% -10%, #1A2C45 0%, var(--color-fondo) 55%);
-    color: var(--color-texto);
+    background: radial-gradient(circle at 50% 0%, var(--azul-claro) 0%, var(--azul-medio) 45%, var(--azul-oscuro) 100%);
+    color: var(--blanco);
     font-family: var(--fuente-cuerpo);
   }
 
@@ -57,33 +58,34 @@
     font-size: 28px;
     margin:0;
     letter-spacing: 0.5px;
+    color: var(--blanco);
   }
 
   .marcador{
     display:flex; gap:10px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
   }
   .marcador span{
     padding: 4px 9px;
     border-radius: 999px;
-    background: var(--color-panel);
-    border: 1px solid var(--color-panel-borde);
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.3);
   }
-  .marcador .aciertos{ color: var(--color-correcta); }
-  .marcador .fallos{ color: var(--color-incorrecta); }
+  .marcador .aciertos{ color: #DFFFEE; }
+  .marcador .fallos{ color: #FFE1DE; }
 
   .timer-bar-wrap{
     height: 6px;
     border-radius: 999px;
-    background: var(--color-panel);
+    background: rgba(255,255,255,0.22);
     overflow:hidden;
     margin-bottom: 6px;
   }
   .timer-bar{
     height:100%;
     width:100%;
-    background: linear-gradient(90deg, var(--color-activa), #F4D68A);
+    background: var(--blanco);
     transition: width 1s linear, background-color 0.4s ease;
   }
   .timer-texto{
@@ -91,7 +93,7 @@
     font-variant-numeric: tabular-nums;
     font-weight: 700;
     font-size: 13px;
-    color: var(--color-texto-tenue);
+    color: var(--blanco-tenue);
     margin-bottom: 18px;
   }
 
@@ -110,11 +112,11 @@
     font-style: italic;
     font-weight: 700;
     font-size: 64px;
-    color: var(--color-activa);
+    color: var(--blanco);
     line-height: 1;
   }
   #pantallaInicio p{
-    color: var(--color-texto-tenue);
+    color: var(--blanco-tenue);
     font-size: 15px;
     line-height: 1.5;
     max-width: 320px;
@@ -125,23 +127,23 @@
     font-weight: 700;
     font-size: 15px;
     border: none;
-    border-radius: 14px;
+    border-radius: 999px;
     padding: 14px 22px;
     cursor: pointer;
     user-select: none;
     touch-action: manipulation;
   }
   .boton-principal{
-    background: var(--color-activa);
-    color: var(--color-activa-texto);
-    box-shadow: 0 8px 20px -6px rgba(232,185,78,0.55);
+    background: var(--blanco);
+    color: var(--azul-oscuro);
+    box-shadow: 0 8px 20px -6px rgba(11,44,102,0.45);
   }
   .boton-principal:active{ transform: scale(0.97); }
 
   /* ---- ROSCO ---- */
   .rosco{
     position: relative;
-    width: min(84vw, 360px);
+    width: min(92vw, 400px);
     aspect-ratio: 1;
     margin: 6px auto 22px;
     border-radius: 50%;
@@ -151,108 +153,95 @@
     position:absolute;
     inset: -6%;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, transparent 0deg, rgba(232,185,78,0.16) 55deg, transparent 130deg, transparent 360deg);
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.18) 55deg, transparent 130deg, transparent 360deg);
     animation: girar-foco 14s linear infinite;
     z-index: 0;
   }
   @keyframes girar-foco{ to{ transform: rotate(360deg); } }
 
-  .rosco-centro{
+  .centro-juego{
     position:absolute; top:50%; left:50%;
     transform: translate(-50%,-50%);
+    width: min(68%, 280px);
     text-align:center;
     z-index: 2;
-    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 10px;
   }
-  .rosco-centro .letra-grande{
-    font-family: var(--fuente-display);
-    font-style: italic;
-    font-weight: 900;
-    font-size: 46px;
-    color: var(--color-activa);
-    line-height:1;
-  }
-  .rosco-centro .contador-mini{
-    font-size: 11px;
-    color: var(--color-texto-tenue);
-    margin-top: 4px;
+  .badge-tipo{
+    background: var(--blanco);
+    color: var(--azul-oscuro);
+    font-weight: 700;
+    font-size: 12px;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
   }
+  .pregunta-texto{
+    margin:0;
+    font-size: clamp(13px, 3.6vw, 16px);
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--blanco);
+  }
+  .respuesta-texto{
+    margin:0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--azul-oscuro);
+    background: rgba(255,255,255,0.94);
+    border-radius: 10px;
+    padding: 7px 10px;
+  }
+  .contador-mini{
+    font-size: 11px;
+    color: var(--blanco-tenue);
+    letter-spacing: 0.4px;
+  }
+  .botones{
+    display:flex; gap: 8px;
+    width: 100%;
+  }
+  .botones .boton{ flex:1; padding: 10px 8px; font-size: 12.5px; }
+  #btnPasa{ background: rgba(255,255,255,0.14); color: var(--blanco); border: 1.5px solid rgba(255,255,255,0.5); }
+  #btnVer{ background: var(--blanco); color: var(--azul-oscuro); }
+  .btn-fallo{ background: var(--rojo-incorrecta); color: #fff; }
+  .btn-acierto{ background: var(--verde-correcta); color: #fff; }
 
   .celda{
     position:absolute;
-    width: 13%;
+    width: 11%;
     aspect-ratio: 1;
     transform: translate(-50%,-50%);
     border-radius: 50%;
     display:flex; align-items:center; justify-content:center;
     font-weight: 700;
-    font-size: 13px;
-    background: var(--color-panel);
-    color: var(--color-celda-texto);
-    border: 1.5px solid var(--color-celda-borde);
+    font-size: 12.5px;
+    background: var(--azul-celda);
+    color: var(--blanco);
+    border: 1.5px solid var(--azul-celda-borde);
     z-index: 1;
     transition: all 0.35s ease;
   }
   .celda.activa{
-    background: var(--color-activa);
-    color: var(--color-activa-texto);
-    border-color: var(--color-activa);
+    background: var(--verde-activa);
+    color: var(--blanco);
+    border-color: var(--verde-activa);
     transform: translate(-50%,-50%) scale(1.28);
-    box-shadow: 0 0 0 6px rgba(232,185,78,0.22);
+    box-shadow: 0 0 0 6px rgba(60,197,131,0.25);
   }
-  .celda.correcta{ background: var(--color-correcta); color:#0D2318; border-color: var(--color-correcta); }
-  .celda.incorrecta{ background: var(--color-incorrecta); color:#2B0B08; border-color: var(--color-incorrecta); }
-  .celda.pasada{ border-style: dashed; border-color: var(--color-activa); }
-  .celda.sin-responder{ background: var(--color-panel); color: var(--color-neutra); border-color: var(--color-neutra); opacity: 0.6; }
+  .celda.correcta{ background: var(--verde-correcta); color:#fff; border-color: var(--verde-correcta); }
+  .celda.incorrecta{ background: var(--rojo-incorrecta); color:#fff; border-color: var(--rojo-incorrecta); }
+  .celda.pasada{ background: var(--azul-pasada); color: var(--azul-oscuro); border-style: dashed; border-color: var(--blanco); }
+  .celda.sin-responder{ background: rgba(255,255,255,0.14); color: var(--blanco-tenue); border-color: rgba(255,255,255,0.3); }
 
-  /* ---- PREGUNTA ---- */
-  .pregunta-card{
-    background: var(--color-panel);
-    border: 1px solid var(--color-panel-borde);
-    border-radius: 20px;
-    padding: 20px;
-    display:flex;
-    flex-direction:column;
-    gap: 12px;
-  }
-  .pregunta-tipo{
-    margin:0;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    color: var(--color-activa);
-  }
-  .pregunta-texto{
-    margin:0;
-    font-size: 17px;
-    line-height: 1.45;
-    color: var(--color-texto);
-  }
-  .respuesta-texto{
-    margin:0;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--color-correcta);
-    background: rgba(76,175,125,0.12);
-    border: 1px solid rgba(76,175,125,0.35);
-    border-radius: 10px;
-    padding: 10px 12px;
-  }
-  .botones{
-    display:flex; gap: 10px;
-  }
-  .botones .boton{ flex:1; }
-  #btnPasa{ background: transparent; color: var(--color-texto-tenue); border: 1.5px solid var(--color-panel-borde); }
-  #btnVer{ background: var(--color-activa); color: var(--color-activa-texto); }
-  .btn-fallo{ background: var(--color-incorrecta); color: #fff; }
-  .btn-acierto{ background: var(--color-correcta); color: #fff; }
-
-  .flash-correcta{ animation: destello-verde 0.5s ease; }
-  .flash-incorrecta{ animation: destello-rojo 0.5s ease; }
-  @keyframes destello-verde{ 0%{ box-shadow: inset 0 0 0 3px var(--color-correcta);} 100%{ box-shadow: inset 0 0 0 0 transparent; } }
-  @keyframes destello-rojo{ 0%{ box-shadow: inset 0 0 0 3px var(--color-incorrecta);} 100%{ box-shadow: inset 0 0 0 0 transparent; } }
+  .flash-correcta .centro-juego{ animation: destello-verde 0.5s ease; }
+  .flash-incorrecta .centro-juego{ animation: destello-rojo 0.5s ease; }
+  @keyframes destello-verde{ 0%{ filter: drop-shadow(0 0 14px rgba(60,197,131,0.9)); } 100%{ filter: none; } }
+  @keyframes destello-rojo{ 0%{ filter: drop-shadow(0 0 14px rgba(229,80,74,0.9)); } 100%{ filter: none; } }
 
   /* ---- FIN ---- */
   #pantallaFin{
@@ -266,9 +255,10 @@
     font-style: italic;
     font-size: 30px;
     margin: 0;
+    color: var(--blanco);
   }
   #finResumen{
-    color: var(--color-texto-tenue);
+    color: var(--blanco-tenue);
     font-size: 15px;
     margin: 0 0 6px;
   }
@@ -307,24 +297,21 @@
 
   <div class="pantalla oculto" id="pantallaJuego">
     <div class="rosco" id="rosco">
-      <div class="rosco-centro">
-        <div class="letra-grande" id="letraGrande">A</div>
-        <div class="contador-mini" id="contadorMini">Letra 1 de 25</div>
-      </div>
-    </div>
+      <div class="centro-juego" id="centroJuego">
+        <div class="badge-tipo" id="preguntaTipo">Empieza por A</div>
+        <p class="pregunta-texto" id="preguntaTexto"></p>
+        <p class="respuesta-texto oculto" id="respuestaTexto"></p>
 
-    <div class="pregunta-card">
-      <p class="pregunta-tipo" id="preguntaTipo">Empieza por A</p>
-      <p class="pregunta-texto" id="preguntaTexto"></p>
-      <p class="respuesta-texto oculto" id="respuestaTexto"></p>
+        <div class="botones" id="botonesPre">
+          <button class="boton" id="btnPasa">Pasapalabra</button>
+          <button class="boton" id="btnVer">Ver respuesta</button>
+        </div>
+        <div class="botones oculto" id="botonesPost">
+          <button class="boton btn-fallo" id="btnFalle">Fallé</button>
+          <button class="boton btn-acierto" id="btnAcerte">Acerté</button>
+        </div>
 
-      <div class="botones" id="botonesPre">
-        <button class="boton" id="btnPasa">Pasapalabra</button>
-        <button class="boton" id="btnVer">Ver respuesta</button>
-      </div>
-      <div class="botones oculto" id="botonesPost">
-        <button class="boton btn-fallo" id="btnFalle">Fallé</button>
-        <button class="boton btn-acierto" id="btnAcerte">Acerté</button>
+        <div class="contador-mini" id="contadorMini">Quedan 25 de 25</div>
       </div>
     </div>
   </div>
@@ -344,8 +331,8 @@
 
   var CONFIG = {
     DURACION_SEGUNDOS: 150,
-    RADIO_PORCENTAJE: 42,
-    TAMANO_CELDA_PORCENTAJE: 13,
+    RADIO_PORCENTAJE: 43,
+    TAMANO_CELDA_PORCENTAJE: 11,
     UMBRAL_TIEMPO_URGENTE: 20,
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
   };
@@ -459,7 +446,7 @@
   var elPantallaFin = document.getElementById("pantallaFin");
   var elBtnJugar = document.getElementById("btnJugar");
   var elRosco = document.getElementById("rosco");
-  var elLetraGrande = document.getElementById("letraGrande");
+  var elCentroJuego = document.getElementById("centroJuego");
   var elContadorMini = document.getElementById("contadorMini");
   var elPreguntaTipo = document.getElementById("preguntaTipo");
   var elPreguntaTexto = document.getElementById("preguntaTexto");
@@ -478,11 +465,10 @@
   var elFinResumen = document.getElementById("finResumen");
   var elRoscoFinal = document.getElementById("roscoFinal");
   var elBtnReiniciar = document.getElementById("btnReiniciar");
-  var elPreguntaCard = document.querySelector(".pregunta-card");
 
   // ---- Estado del juego ----
-  var estadoLetras = [];   // paralelo a CONFIG.LETRAS_ROSCO
-  var colaTurnos = [];     // índices pendientes, en orden de turno
+  var estadoLetras = [];
+  var colaTurnos = [];
   var punteroTurno = 0;
   var segundosRestantes = CONFIG.DURACION_SEGUNDOS;
   var idIntervalo = null;
@@ -552,7 +538,6 @@
     celdasDom.forEach(function(c){ c.classList.remove("activa"); });
     celdasDom[idx].classList.add("activa");
 
-    elLetraGrande.textContent = item.letra;
     elContadorMini.textContent = "Quedan " + colaTurnos.length + " de 25";
     elPreguntaTipo.textContent = item.tipo;
     elPreguntaTexto.textContent = item.texto;
@@ -563,7 +548,7 @@
   }
 
   function pasarPalabra(){
-    if (colaTurnos.length <= 1) return; // pasar no tiene sentido si solo queda una
+    if (colaTurnos.length <= 1) return;
     var idx = indiceActual();
     estadoLetras[idx].pasada = true;
     celdasDom[idx].classList.add("pasada");
@@ -585,9 +570,9 @@
     celdasDom[idx].classList.remove("activa", "pasada");
     celdasDom[idx].classList.add(acierto ? "correcta" : "incorrecta");
 
-    elPreguntaCard.classList.remove("flash-correcta", "flash-incorrecta");
-    void elPreguntaCard.offsetWidth;
-    elPreguntaCard.classList.add(acierto ? "flash-correcta" : "flash-incorrecta");
+    elRosco.classList.remove("flash-correcta", "flash-incorrecta");
+    void elRosco.offsetWidth;
+    elRosco.classList.add(acierto ? "flash-correcta" : "flash-incorrecta");
     vibrar(acierto ? 45 : [40, 40, 40]);
 
     colaTurnos.splice(punteroTurno, 1);
@@ -608,9 +593,9 @@
     var porcentaje = Math.max(0, (segundosRestantes / CONFIG.DURACION_SEGUNDOS) * 100);
     elBarraTiempo.style.width = porcentaje + "%";
     if (segundosRestantes <= CONFIG.UMBRAL_TIEMPO_URGENTE){
-      elBarraTiempo.style.background = "linear-gradient(90deg, var(--color-incorrecta), #F08A80)";
+      elBarraTiempo.style.background = "#FFD3D0";
     } else {
-      elBarraTiempo.style.background = "linear-gradient(90deg, var(--color-activa), #F4D68A)";
+      elBarraTiempo.style.background = "var(--blanco)";
     }
     var m = Math.floor(segundosRestantes / 60);
     var s = segundosRestantes % 60;
