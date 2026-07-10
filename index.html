@@ -31,6 +31,7 @@
 
   html, body{
     margin:0; padding:0; min-height:100%;
+    min-height: 100dvh;
     background: radial-gradient(circle at 50% 0%, var(--azul-claro) 0%, var(--azul-medio) 45%, var(--azul-oscuro) 100%);
     color: var(--blanco);
     font-family: var(--fuente-cuerpo);
@@ -103,7 +104,8 @@
 
   #pantallaJuego{
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
+    padding-top: 2vh;
   }
 
   #pantallaInicio{
@@ -318,7 +320,6 @@
   <div class="tiempo-transcurrido" id="tiempoTranscurrido">⏱ 00:00</div>
 
   <div class="pantalla" id="pantallaInicio">
-    <p>25 letras, una pregunta por cada una. La partida dura hasta que completas el rosco entero: te cronometramos para que compitas por el mejor tiempo. Escribe tu respuesta y compruébala al momento, o pasa a la siguiente si dudas.</p>
     <button class="boton-redondo" id="btnJugar">Generar rosco</button>
   </div>
 
@@ -418,7 +419,7 @@
   function activarAudioTrasGesto(){
     if (sonidoActivado){
       elMusicaFondo.volume = CONFIG.VOLUMEN_MUSICA;
-      elMusicaFondo.play().catch(function(){ /* musica.mp3 no disponible todavía */ });
+      elMusicaFondo.play().catch(function(error){ console.error("No se pudo reproducir musica.mp3:", error); });
     }
   }
 
