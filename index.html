@@ -216,12 +216,6 @@
   .respuesta-texto.es-fallo{ background: rgba(255,255,255,0.94); color: var(--rojo-incorrecta); }
   .respuesta-texto.es-acierto{ background: rgba(255,255,255,0.94); color: var(--verde-correcta); }
 
-  .contador-mini{
-    font-size: 11px;
-    color: var(--blanco-tenue);
-    letter-spacing: 0.4px;
-  }
-
   .botones-icono{
     display:flex; gap: 16px;
     align-items:center;
@@ -337,8 +331,6 @@
           <button class="boton-icono" id="btnComprobar" title="Comprobar">✓</button>
           <button class="boton-icono" id="btnPasa" title="Pasapalabra">»</button>
         </div>
-
-        <div class="contador-mini" id="contadorMini">Quedan 25 de 25</div>
       </div>
     </div>
   </div>
@@ -376,7 +368,6 @@
   var elPantallaFin = document.getElementById("pantallaFin");
   var elBtnJugar = document.getElementById("btnJugar");
   var elRosco = document.getElementById("rosco");
-  var elContadorMini = document.getElementById("contadorMini");
   var elPreguntaTipo = document.getElementById("preguntaTipo");
   var elPreguntaTexto = document.getElementById("preguntaTexto");
   var elInputRespuesta = document.getElementById("inputRespuesta");
@@ -506,7 +497,6 @@
     celdasDom.forEach(function(c){ c.classList.remove("activa"); });
     celdasDom[idx].classList.add("activa");
 
-    elContadorMini.textContent = "Quedan " + colaTurnos.length + " de 25";
     elPreguntaTipo.textContent = item.tipo;
     elPreguntaTexto.textContent = item.texto;
 
