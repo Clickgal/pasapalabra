@@ -352,10 +352,11 @@
     TAMANO_CELDA_PORCENTAJE: 8.0,
     RETARDO_TRANSICION_MS: 1000,
     VOLUMEN_MUSICA: 0.35,
-    FRECUENCIA_PASAPALABRA_INICIO: 900,
-    FRECUENCIA_PASAPALABRA_FIN: 220,
-    DURACION_PASAPALABRA: 0.18,
-    VOLUMEN_PASAPALABRA: 0.2,
+    FRECUENCIA_PASAPALABRA_INICIO: 4200,
+    FRECUENCIA_PASAPALABRA_FIN: 700,
+    DURACION_PASAPALABRA: 0.32,
+    VOLUMEN_PASAPALABRA: 0.4,
+    Q_PASAPALABRA: 1.3,
     DIFICULTADES: ["facil", "media", "dificil"],
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
   };
@@ -427,18 +428,38 @@
     if (!sonidoActivado) return;
     var ctx = obtenerContextoAudio();
     if (!ctx) return;
-    var oscilador = ctx.createOscillator();
-    var ganancia = ctx.createGain();
     var inicio = ctx.currentTime;
-    oscilador.type = "triangle";
-    oscilador.frequency.setValueAtTime(CONFIG.FRECUENCIA_PASAPALABRA_INICIO, inicio);
-    oscilador.frequency.exponentialRampToValueAtTime(CONFIG.FRECUENCIA_PASAPALABRA_FIN, inicio + CONFIG.DURACION_PASAPALABRA);
-    ganancia.gain.setValueAtTime(CONFIG.VOLUMEN_PASAPALABRA, inicio);
-    ganancia.gain.exponentialRampToValueAtTime(0.001, inicio + CONFIG.DURACION_PASAPALABRA);
-    oscilador.connect(ganancia);
+    var duracion = CONFIG.DURACION_PASAPALABRA;
+
+    // Ruido blanco: es la base de un sonido de "escobazo" o "shhh".
+    var muestras = Math.floor(ctx.sampleRate * duracion);
+    var buffer = ctx.createBuffer(1, muestras, ctx.sampleRate);
+    var datos = buffer.getChannelData(0);
+    for (var i = 0; i < muestras; i++){
+      datos[i] = Math.random() * 2 - 1;
+    }
+    var fuenteRuido = ctx.createBufferSource();
+    fuenteRuido.buffer = buffer;
+
+    // Filtro de paso de banda que barre de agudo a grave: da la sensación de barrido.
+    var filtro = ctx.createBiquadFilter();
+    filtro.type = "bandpass";
+    filtro.Q.value = CONFIG.Q_PASAPALABRA;
+    filtro.frequency.setValueAtTime(CONFIG.FRECUENCIA_PASAPALABRA_INICIO, inicio);
+    filtro.frequency.exponentialRampToValueAtTime(CONFIG.FRECUENCIA_PASAPALABRA_FIN, inicio + duracion);
+
+    // Envolvente de volumen en forma de "swell": entra y sale suave, como un barrido.
+    var ganancia = ctx.createGain();
+    ganancia.gain.setValueAtTime(0.0001, inicio);
+    ganancia.gain.exponentialRampToValueAtTime(CONFIG.VOLUMEN_PASAPALABRA, inicio + duracion * 0.3);
+    ganancia.gain.exponentialRampToValueAtTime(0.0001, inicio + duracion);
+
+    fuenteRuido.connect(filtro);
+    filtro.connect(ganancia);
     ganancia.connect(ctx.destination);
-    oscilador.start(inicio);
-    oscilador.stop(inicio + CONFIG.DURACION_PASAPALABRA);
+
+    fuenteRuido.start(inicio);
+    fuenteRuido.stop(inicio + duracion);
   }
 
   function activarAudioTrasGesto(){
