@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="preguntas.js"></script>
 <style>
   :root{
     --azul-claro: #5FB3F6;
@@ -359,108 +360,12 @@
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
   };
 
-  var BANCO_PREGUNTAS = {
-    A: [
-      { tipo: "Empieza por A", texto: "Ave rapaz, símbolo de Estados Unidos y de la libertad.", respuesta: "Águila" },
-      { tipo: "Empieza por A", texto: "Instrumento musical de cuerda, de forma triangular.", respuesta: "Arpa" }
-    ],
-    B: [
-      { tipo: "Empieza por B", texto: "Mamífero marino, el animal más grande que existe.", respuesta: "Ballena" },
-      { tipo: "Empieza por B", texto: "Danza clásica que se baila de puntillas.", respuesta: "Ballet" }
-    ],
-    C: [
-      { tipo: "Empieza por C", texto: "Órgano que bombea la sangre por todo el cuerpo.", respuesta: "Corazón" },
-      { tipo: "Empieza por C", texto: "País sudamericano cuya capital es Santiago.", respuesta: "Chile" }
-    ],
-    D: [
-      { tipo: "Empieza por D", texto: "Figura geométrica de diez lados.", respuesta: "Decágono" },
-      { tipo: "Empieza por D", texto: "Dios griego del vino y las fiestas.", respuesta: "Dionisio" }
-    ],
-    E: [
-      { tipo: "Empieza por E", texto: "País europeo cuya capital es Madrid.", respuesta: "España" },
-      { tipo: "Empieza por E", texto: "Continente donde se encuentra España.", respuesta: "Europa" }
-    ],
-    F: [
-      { tipo: "Empieza por F", texto: "Ciencia que estudia el movimiento, la energía y la materia.", respuesta: "Física" },
-      { tipo: "Empieza por F", texto: "Nombre de las fiestas de Pamplona en las que corren los toros, San ____.", respuesta: "Fermín" }
-    ],
-    G: [
-      { tipo: "Empieza por G", texto: "Ave doméstica de corral que canta al amanecer.", respuesta: "Gallo" },
-      { tipo: "Empieza por G", texto: "País centroamericano cuya capital es Ciudad de Guatemala.", respuesta: "Guatemala" }
-    ],
-    H: [
-      { tipo: "Empieza por H", texto: "País europeo cuya capital es Budapest.", respuesta: "Hungría" },
-      { tipo: "Empieza por H", texto: "Físico británico famoso por sus estudios sobre los agujeros negros.", respuesta: "Hawking" }
-    ],
-    I: [
-      { tipo: "Empieza por I", texto: "País europeo con forma de bota.", respuesta: "Italia" },
-      { tipo: "Empieza por I", texto: "País escandinavo conocido por sus volcanes y géiseres.", respuesta: "Islandia" }
-    ],
-    J: [
-      { tipo: "Empieza por J", texto: "Día de la semana entre el miércoles y el viernes.", respuesta: "Jueves" },
-      { tipo: "Empieza por J", texto: "Planeta más grande del sistema solar.", respuesta: "Júpiter" }
-    ],
-    L: [
-      { tipo: "Empieza por L", texto: "Felino de gran melena, conocido como el rey de la selva.", respuesta: "León" },
-      { tipo: "Empieza por L", texto: "Diminuto país europeo situado entre Suiza y Austria.", respuesta: "Liechtenstein" }
-    ],
-    M: [
-      { tipo: "Empieza por M", texto: "Capital de España.", respuesta: "Madrid" },
-      { tipo: "Empieza por M", texto: "Planeta conocido como el planeta rojo.", respuesta: "Marte" }
-    ],
-    N: [
-      { tipo: "Empieza por N", texto: "País escandinavo famoso por sus fiordos.", respuesta: "Noruega" },
-      { tipo: "Empieza por N", texto: "Nombre que recibe la mitad superior del continente americano.", respuesta: "Norteamérica" }
-    ],
-    "Ñ": [
-      { tipo: "Contiene la Ñ", texto: "Animal de ocho patas que teje una tela para cazar insectos.", respuesta: "Araña" },
-      { tipo: "Contiene la Ñ", texto: "Fruta tropical cubierta de escamas, con una corona de hojas en la punta.", respuesta: "Piña" }
-    ],
-    O: [
-      { tipo: "Empieza por O", texto: "Continente donde se encuentra Australia.", respuesta: "Oceanía" },
-      { tipo: "Empieza por O", texto: "Instrumento musical de tubos, típico de las iglesias.", respuesta: "Órgano" }
-    ],
-    P: [
-      { tipo: "Empieza por P", texto: "País sudamericano donde se encuentra Machu Picchu.", respuesta: "Perú" },
-      { tipo: "Empieza por P", texto: "Ave que no vuela, de plumaje blanco y negro, típica de la Antártida.", respuesta: "Pingüino" }
-    ],
-    Q: [
-      { tipo: "Empieza por Q", texto: "Alimento sólido elaborado a partir de leche cuajada.", respuesta: "Queso" },
-      { tipo: "Empieza por Q", texto: "Producto lácteo que se vende en variedades como el manchego o el brie.", respuesta: "Queso" }
-    ],
-    R: [
-      { tipo: "Empieza por R", texto: "Anfibio verde que vive cerca del agua y dice \"croac\".", respuesta: "Rana" },
-      { tipo: "Empieza por R", texto: "País europeo cuya capital es Bucarest.", respuesta: "Rumanía" }
-    ],
-    S: [
-      { tipo: "Empieza por S", texto: "Estrella que ilumina nuestro sistema solar.", respuesta: "Sol" },
-      { tipo: "Empieza por S", texto: "País asiático con forma de lágrima, situado junto a la India.", respuesta: "Sri Lanka" }
-    ],
-    T: [
-      { tipo: "Empieza por T", texto: "País situado entre Europa y Asia, cuya capital es Ankara.", respuesta: "Turquía" },
-      { tipo: "Empieza por T", texto: "Reptil de caparazón duro, muy longevo, símbolo de lentitud.", respuesta: "Tortuga" }
-    ],
-    U: [
-      { tipo: "Empieza por U", texto: "Institución donde se cursan estudios superiores tras el instituto.", respuesta: "Universidad" },
-      { tipo: "Empieza por U", texto: "País sudamericano cuya capital es Montevideo.", respuesta: "Uruguay" }
-    ],
-    V: [
-      { tipo: "Empieza por V", texto: "Pintor español autor de \"Las Meninas\".", respuesta: "Velázquez" },
-      { tipo: "Empieza por V", texto: "Montaña que expulsa lava, cenizas y gases desde su interior.", respuesta: "Volcán" }
-    ],
-    X: [
-      { tipo: "Empieza por X", texto: "Instrumento de percusión formado por láminas de madera que se golpean con baquetas.", respuesta: "Xilófono" },
-      { tipo: "Contiene la X", texto: "Prueba médica que usa un tipo de rayos para fotografiar los huesos.", respuesta: "Rayos X" }
-    ],
-    Y: [
-      { tipo: "Empieza por Y", texto: "Postre lácteo cremoso y fermentado, muy habitual en el desayuno.", respuesta: "Yogur" },
-      { tipo: "Empieza por Y", texto: "Producto lácteo fermentado que también se usa para hacer salsas frías.", respuesta: "Yogur" }
-    ],
-    Z: [
-      { tipo: "Empieza por Z", texto: "Mamífero astuto, de hocico puntiagudo y cola larga, protagonista de muchas fábulas.", respuesta: "Zorro" },
-      { tipo: "Empieza por Z", texto: "Calzado que cubre y protege el pie, se usa a diario.", respuesta: "Zapato" }
-    ]
-  };
+  // El banco de preguntas (BANCO_PREGUNTAS) llega desde preguntas.js,
+  // cargado antes que este script.
+
+  function tipoParaLetra(letra){
+    return letra === "Ñ" ? "Contiene la Ñ" : "Empieza por " + letra;
+  }
 
   // ---- Referencias al DOM ----
   var elPantallaInicio = document.getElementById("pantallaInicio");
@@ -532,7 +437,7 @@
   function iniciarPartida(){
     estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra){
       var p = elegirPreguntaAleatoria(letra);
-      return { letra: letra, tipo: p.tipo, texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
+      return { letra: letra, tipo: tipoParaLetra(letra), categoria: p.categoria, texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
     });
     colaTurnos = estadoLetras.map(function(_, i){ return i; });
     punteroTurno = 0;
