@@ -89,30 +89,22 @@
   }
   .boton-sonido:active{ transform: scale(0.94); }
 
-  .timer-bar-wrap{
-    height: 6px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.22);
-    overflow:hidden;
-    margin-bottom: 6px;
-  }
-  .timer-bar{
-    height:100%;
-    width:100%;
-    background: var(--blanco);
-    transition: width 1s linear, background-color 0.4s ease;
-  }
-  .timer-texto{
+  .tiempo-transcurrido{
     text-align:center;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
     font-size: 13px;
     color: var(--blanco-tenue);
-    margin-bottom: 18px;
+    margin-bottom: 10px;
   }
 
   .pantalla{ flex:1; display:flex; flex-direction:column; }
   .oculto{ display:none !important; }
+
+  #pantallaJuego{
+    align-items:center;
+    justify-content:center;
+  }
 
   #pantallaInicio{
     align-items:center;
@@ -274,7 +266,6 @@
   .celda.correcta{ background: var(--verde-correcta); color:#fff; border-color: var(--verde-correcta); }
   .celda.incorrecta{ background: var(--rojo-incorrecta); color:#fff; border-color: var(--rojo-incorrecta); }
   .celda.pasada{ background: var(--azul-pasada); color: var(--azul-oscuro); border-style: dashed; border-color: var(--blanco); }
-  .celda.sin-responder{ background: rgba(255,255,255,0.14); color: var(--blanco-tenue); border-color: rgba(255,255,255,0.3); }
 
   .flash-correcta .centro-juego{ animation: destello-verde 0.5s ease; }
   .flash-incorrecta .centro-juego{ animation: destello-rojo 0.5s ease; }
@@ -287,13 +278,6 @@
     text-align:center;
     justify-content:center;
     gap: 14px;
-  }
-  #finTitulo{
-    font-family: var(--fuente-display);
-    font-weight: 800;
-    font-size: 28px;
-    margin: 0;
-    color: var(--blanco);
   }
   #finResumen{
     color: var(--blanco-tenue);
@@ -331,12 +315,11 @@
   <audio id="sonidoAcierto" src="acierto.mp3" preload="auto"></audio>
   <audio id="sonidoFallo" src="fallo.mp3" preload="auto"></audio>
 
-  <div class="timer-bar-wrap"><div class="timer-bar" id="barraTiempo"></div></div>
-  <div class="timer-texto" id="textoTiempo">02:30</div>
+  <div class="tiempo-transcurrido" id="tiempoTranscurrido">⏱ 00:00</div>
 
   <div class="pantalla" id="pantallaInicio">
-    <p>25 letras, una pregunta por cada una y dos minutos y medio en el reloj. Escribe tu respuesta y compruébala al momento, o pasa a la siguiente si dudas.</p>
-    <button class="boton-redondo" id="btnJugar">Comenzar</button>
+    <p>25 letras, una pregunta por cada una. La partida dura hasta que completas el rosco entero: te cronometramos para que compitas por el mejor tiempo. Escribe tu respuesta y compruébala al momento, o pasa a la siguiente si dudas.</p>
+    <button class="boton-redondo" id="btnJugar">Generar rosco</button>
   </div>
 
   <div class="pantalla oculto" id="pantallaJuego">
@@ -360,10 +343,9 @@
   </div>
 
   <div class="pantalla oculto" id="pantallaFin">
-    <h2 id="finTitulo"></h2>
     <p id="finResumen"></p>
     <div class="rosco-final" id="roscoFinal"></div>
-    <button class="boton-redondo" id="btnReiniciar">Otra vez</button>
+    <button class="boton-redondo" id="btnReiniciar">Generar rosco</button>
   </div>
 
 </div>
@@ -373,10 +355,8 @@
   "use strict";
 
   var CONFIG = {
-    DURACION_SEGUNDOS: 150,
     RADIO_PORCENTAJE: 43,
     TAMANO_CELDA_PORCENTAJE: 11,
-    UMBRAL_TIEMPO_URGENTE: 20,
     RETARDO_TRANSICION_MS: 1000,
     VOLUMEN_MUSICA: 0.35,
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
@@ -402,11 +382,9 @@
   var elRespuestaTexto = document.getElementById("respuestaTexto");
   var elBtnComprobar = document.getElementById("btnComprobar");
   var elBtnPasa = document.getElementById("btnPasa");
-  var elBarraTiempo = document.getElementById("barraTiempo");
-  var elTextoTiempo = document.getElementById("textoTiempo");
+  var elTiempoTranscurrido = document.getElementById("tiempoTranscurrido");
   var elMarcadorAciertos = document.getElementById("marcadorAciertos");
   var elMarcadorFallos = document.getElementById("marcadorFallos");
-  var elFinTitulo = document.getElementById("finTitulo");
   var elFinResumen = document.getElementById("finResumen");
   var elRoscoFinal = document.getElementById("roscoFinal");
   var elBtnReiniciar = document.getElementById("btnReiniciar");
@@ -419,7 +397,7 @@
   var estadoLetras = [];
   var colaTurnos = [];
   var punteroTurno = 0;
-  var segundosRestantes = CONFIG.DURACION_SEGUNDOS;
+  var segundosTranscurridos = 0;
   var idIntervalo = null;
   var celdasDom = [];
   var enTransicion = false;
@@ -497,12 +475,12 @@
     });
     colaTurnos = estadoLetras.map(function(_, i){ return i; });
     punteroTurno = 0;
-    segundosRestantes = CONFIG.DURACION_SEGUNDOS;
+    segundosTranscurridos = 0;
     enTransicion = false;
 
     construirRosco();
     actualizarMarcador();
-    actualizarBarraTiempo();
+    actualizarTiempoTranscurrido();
 
     elPantallaInicio.classList.add("oculto");
     elPantallaFin.classList.add("oculto");
@@ -519,7 +497,7 @@
   }
 
   function mostrarTurnoActual(){
-    if (colaTurnos.length === 0){ finalizarPartida("completado"); return; }
+    if (colaTurnos.length === 0){ finalizarPartida(); return; }
 
     var idx = indiceActual();
     var item = estadoLetras[idx];
@@ -601,53 +579,28 @@
     elMarcadorFallos.textContent = "✗ " + fallos;
   }
 
-  function actualizarBarraTiempo(){
-    var porcentaje = Math.max(0, (segundosRestantes / CONFIG.DURACION_SEGUNDOS) * 100);
-    elBarraTiempo.style.width = porcentaje + "%";
-    if (segundosRestantes <= CONFIG.UMBRAL_TIEMPO_URGENTE){
-      elBarraTiempo.style.background = "#FFD3D0";
-    } else {
-      elBarraTiempo.style.background = "var(--blanco)";
-    }
-    var m = Math.floor(segundosRestantes / 60);
-    var s = segundosRestantes % 60;
-    elTextoTiempo.textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  function actualizarTiempoTranscurrido(){
+    var m = Math.floor(segundosTranscurridos / 60);
+    var s = segundosTranscurridos % 60;
+    elTiempoTranscurrido.textContent = "⏱ " + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
   }
 
   function tick(){
-    segundosRestantes--;
-    actualizarBarraTiempo();
-    if (segundosRestantes <= 0){
-      finalizarPartida("tiempo");
-    }
+    segundosTranscurridos++;
+    actualizarTiempoTranscurrido();
   }
 
-  function finalizarPartida(motivo){
+  function finalizarPartida(){
     clearInterval(idIntervalo);
     idIntervalo = null;
 
-    estadoLetras.forEach(function(item, idx){
-      if (item.estado === "pendiente"){
-        item.estado = "sin-responder";
-        celdasDom[idx].classList.remove("activa", "pasada");
-        celdasDom[idx].classList.add("sin-responder");
-      }
-    });
-
     var aciertos = estadoLetras.filter(function(i){ return i.estado === "correcta"; }).length;
     var fallos = estadoLetras.filter(function(i){ return i.estado === "incorrecta"; }).length;
-    var sinResponder = estadoLetras.filter(function(i){ return i.estado === "sin-responder"; }).length;
+    var m = Math.floor(segundosTranscurridos / 60);
+    var s = segundosTranscurridos % 60;
+    var tiempoFormateado = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
 
-    elFinTitulo.textContent = motivo === "tiempo" ? "¡Se acabó el tiempo!" : "¡Rosco completado!";
-
-    var mensajeNivel;
-    if (aciertos === 25) mensajeNivel = "¡Rosco perfecto! 🏆";
-    else if (aciertos >= 20) mensajeNivel = "¡Nivel crack! 🔥";
-    else if (aciertos >= 15) mensajeNivel = "Muy buena partida 👏";
-    else if (aciertos >= 10) mensajeNivel = "Nada mal 💪";
-    else mensajeNivel = "A seguir practicando 📚";
-
-    elFinResumen.textContent = mensajeNivel + " — Aciertos: " + aciertos + " · Fallos: " + fallos + (sinResponder > 0 ? " · Sin responder: " + sinResponder : "");
+    elFinResumen.textContent = "Aciertos: " + aciertos + " · Fallos: " + fallos + " · Tiempo: " + tiempoFormateado;
 
     construirRoscoFinal();
 
