@@ -75,6 +75,20 @@
   .marcador .aciertos{ color: #DFFFEE; }
   .marcador .fallos{ color: #FFE1DE; }
 
+  .boton-sonido{
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.16);
+    color: var(--blanco);
+    font-size: 15px;
+    display:flex; align-items:center; justify-content:center;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .boton-sonido:active{ transform: scale(0.94); }
+
   .timer-bar-wrap{
     height: 6px;
     border-radius: 999px;
@@ -304,11 +318,18 @@
 
   <header>
     <h1>Pasapalabra</h1>
-    <div class="marcador">
-      <span class="aciertos" id="marcadorAciertos">✓ 0</span>
-      <span class="fallos" id="marcadorFallos">✗ 0</span>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="marcador">
+        <span class="aciertos" id="marcadorAciertos">✓ 0</span>
+        <span class="fallos" id="marcadorFallos">✗ 0</span>
+      </div>
+      <button class="boton-sonido" id="btnSonido" title="Silenciar/activar sonido">🔊</button>
     </div>
   </header>
+
+  <audio id="musicaFondo" src="musica.mp3" loop preload="auto"></audio>
+  <audio id="sonidoAcierto" src="acierto.mp3" preload="auto"></audio>
+  <audio id="sonidoFallo" src="fallo.mp3" preload="auto"></audio>
 
   <div class="timer-bar-wrap"><div class="timer-bar" id="barraTiempo"></div></div>
   <div class="timer-texto" id="textoTiempo">02:30</div>
@@ -357,6 +378,7 @@
     TAMANO_CELDA_PORCENTAJE: 11,
     UMBRAL_TIEMPO_URGENTE: 20,
     RETARDO_TRANSICION_MS: 1000,
+    VOLUMEN_MUSICA: 0.35,
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
   };
 
@@ -388,6 +410,10 @@
   var elFinResumen = document.getElementById("finResumen");
   var elRoscoFinal = document.getElementById("roscoFinal");
   var elBtnReiniciar = document.getElementById("btnReiniciar");
+  var elMusicaFondo = document.getElementById("musicaFondo");
+  var elBtnSonido = document.getElementById("btnSonido");
+  var elSonidoAcierto = document.getElementById("sonidoAcierto");
+  var elSonidoFallo = document.getElementById("sonidoFallo");
 
   // ---- Estado del juego ----
   var estadoLetras = [];
@@ -397,6 +423,36 @@
   var idIntervalo = null;
   var celdasDom = [];
   var enTransicion = false;
+  var sonidoActivado = true;
+
+  function reproducirSonidoAcierto(){
+    if (!sonidoActivado) return;
+    elSonidoAcierto.currentTime = 0;
+    elSonidoAcierto.play().catch(function(){ /* sin interacción previa del usuario */ });
+  }
+
+  function reproducirSonidoError(){
+    if (!sonidoActivado) return;
+    elSonidoFallo.currentTime = 0;
+    elSonidoFallo.play().catch(function(){ /* sin interacción previa del usuario */ });
+  }
+
+  function activarAudioTrasGesto(){
+    if (sonidoActivado){
+      elMusicaFondo.volume = CONFIG.VOLUMEN_MUSICA;
+      elMusicaFondo.play().catch(function(){ /* musica.mp3 no disponible todavía */ });
+    }
+  }
+
+  function alternarSonido(){
+    sonidoActivado = !sonidoActivado;
+    elBtnSonido.textContent = sonidoActivado ? "🔊" : "🔇";
+    if (sonidoActivado){
+      elMusicaFondo.play().catch(function(){ /* musica.mp3 no disponible todavía */ });
+    } else {
+      elMusicaFondo.pause();
+    }
+  }
 
   function elegirPreguntaAleatoria(letra){
     var opciones = BANCO_PREGUNTAS[letra];
@@ -517,6 +573,7 @@
     void elRosco.offsetWidth;
     elRosco.classList.add(acierto ? "flash-correcta" : "flash-incorrecta");
     vibrar(acierto ? 45 : [40, 40, 40]);
+    if (acierto) reproducirSonidoAcierto(); else reproducirSonidoError();
 
     setTimeout(function(){
       enTransicion = false;
@@ -617,10 +674,11 @@
   }
 
   // ---- Eventos ----
-  elBtnJugar.addEventListener("click", iniciarPartida);
+  elBtnJugar.addEventListener("click", function(){ activarAudioTrasGesto(); iniciarPartida(); });
   elBtnPasa.addEventListener("click", pasarPalabra);
   elBtnComprobar.addEventListener("click", comprobarRespuesta);
-  elBtnReiniciar.addEventListener("click", iniciarPartida);
+  elBtnReiniciar.addEventListener("click", function(){ activarAudioTrasGesto(); iniciarPartida(); });
+  elBtnSonido.addEventListener("click", alternarSonido);
   elInputRespuesta.addEventListener("keydown", function(e){
     if (e.key === "Enter"){ e.preventDefault(); comprobarRespuesta(); }
   });
