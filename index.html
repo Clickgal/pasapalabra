@@ -352,6 +352,11 @@
     TAMANO_CELDA_PORCENTAJE: 8.0,
     RETARDO_TRANSICION_MS: 1000,
     VOLUMEN_MUSICA: 0.35,
+    FRECUENCIA_PASAPALABRA_INICIO: 900,
+    FRECUENCIA_PASAPALABRA_FIN: 220,
+    DURACION_PASAPALABRA: 0.18,
+    VOLUMEN_PASAPALABRA: 0.2,
+    DIFICULTADES: ["facil", "media", "dificil"],
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
   };
 
@@ -396,6 +401,15 @@
   var celdasDom = [];
   var enTransicion = false;
   var sonidoActivado = true;
+  var contextoAudio = null;
+
+  function obtenerContextoAudio(){
+    var ClaseAudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!ClaseAudioContext) return null;
+    if (!contextoAudio) contextoAudio = new ClaseAudioContext();
+    if (contextoAudio.state === "suspended") contextoAudio.resume();
+    return contextoAudio;
+  }
 
   function reproducirSonidoAcierto(){
     if (!sonidoActivado) return;
@@ -407,6 +421,24 @@
     if (!sonidoActivado) return;
     elSonidoFallo.currentTime = 0;
     elSonidoFallo.play().catch(function(){ /* sin interacción previa del usuario */ });
+  }
+
+  function reproducirSonidoPasapalabra(){
+    if (!sonidoActivado) return;
+    var ctx = obtenerContextoAudio();
+    if (!ctx) return;
+    var oscilador = ctx.createOscillator();
+    var ganancia = ctx.createGain();
+    var inicio = ctx.currentTime;
+    oscilador.type = "triangle";
+    oscilador.frequency.setValueAtTime(CONFIG.FRECUENCIA_PASAPALABRA_INICIO, inicio);
+    oscilador.frequency.exponentialRampToValueAtTime(CONFIG.FRECUENCIA_PASAPALABRA_FIN, inicio + CONFIG.DURACION_PASAPALABRA);
+    ganancia.gain.setValueAtTime(CONFIG.VOLUMEN_PASAPALABRA, inicio);
+    ganancia.gain.exponentialRampToValueAtTime(0.001, inicio + CONFIG.DURACION_PASAPALABRA);
+    oscilador.connect(ganancia);
+    ganancia.connect(ctx.destination);
+    oscilador.start(inicio);
+    oscilador.stop(inicio + CONFIG.DURACION_PASAPALABRA);
   }
 
   function activarAudioTrasGesto(){
@@ -426,9 +458,33 @@
     }
   }
 
-  function elegirPreguntaAleatoria(letra){
+  function mezclarArray(array){
+    var copia = array.slice();
+    for (var i = copia.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = copia[i];
+      copia[i] = copia[j];
+      copia[j] = temp;
+    }
+    return copia;
+  }
+
+  // Reparte las dificultades entre las letras del rosco a partes iguales
+  // (un poco de fácil, media y difícil siempre) y luego mezcla qué letra
+  // recibe cada dificultad, para que cada partida sea distinta.
+  function generarAsignacionDificultades(cantidadLetras){
+    var asignacion = [];
+    for (var i = 0; i < cantidadLetras; i++){
+      asignacion.push(CONFIG.DIFICULTADES[i % CONFIG.DIFICULTADES.length]);
+    }
+    return mezclarArray(asignacion);
+  }
+
+  function elegirPreguntaPorDificultad(letra, dificultad){
     var opciones = BANCO_PREGUNTAS[letra];
-    return opciones[Math.floor(Math.random() * opciones.length)];
+    var filtradas = opciones.filter(function(p){ return p.dificultad === dificultad; });
+    var candidatas = filtradas.length > 0 ? filtradas : opciones;
+    return candidatas[Math.floor(Math.random() * candidatas.length)];
   }
 
   function normalizar(texto){
@@ -463,9 +519,10 @@
   }
 
   function iniciarPartida(){
-    estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra){
-      var p = elegirPreguntaAleatoria(letra);
-      return { letra: letra, tipo: tipoParaLetra(letra), categoria: p.categoria, texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
+    var dificultadesAsignadas = generarAsignacionDificultades(CONFIG.LETRAS_ROSCO.length);
+    estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra, i){
+      var p = elegirPreguntaPorDificultad(letra, dificultadesAsignadas[i]);
+      return { letra: letra, tipo: tipoParaLetra(letra), categoria: p.categoria, dificultad: p.dificultad, texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
     });
     colaTurnos = estadoLetras.map(function(_, i){ return i; });
     punteroTurno = 0;
@@ -514,6 +571,7 @@
   function pasarPalabra(){
     if (enTransicion) return;
     if (colaTurnos.length <= 1) return;
+    reproducirSonidoPasapalabra();
     var idx = indiceActual();
     estadoLetras[idx].pasada = true;
     celdasDom[idx].classList.add("pasada");
