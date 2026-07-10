@@ -217,14 +217,14 @@
   .respuesta-texto.es-acierto{ background: rgba(255,255,255,0.94); color: var(--verde-correcta); }
 
   .botones-icono{
-    display:flex; gap: 16px;
+    display:flex; gap: 14px;
     align-items:center;
     justify-content:center;
   }
   .boton-icono{
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
+    width: 84px;
+    height: 44px;
+    border-radius: 999px;
     border: none;
     background: var(--azul-oscuro);
     color: var(--blanco);
@@ -234,34 +234,34 @@
     display:flex; align-items:center; justify-content:center;
     box-shadow: 0 6px 14px -4px rgba(11,44,102,0.6);
   }
-  .boton-icono:active{ transform: scale(0.94); }
+  .boton-icono:active{ transform: scale(0.95); }
   .boton-icono:disabled{ opacity: 0.5; }
 
   .celda{
     position:absolute;
-    width: 11%;
+    width: 8.6%;
     aspect-ratio: 1;
     transform: translate(-50%,-50%);
     border-radius: 50%;
     display:flex; align-items:center; justify-content:center;
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 12px;
     background: var(--azul-celda);
     color: var(--blanco);
-    border: 1.5px solid var(--azul-celda-borde);
+    border: none;
+    box-shadow: 0 2px 4px rgba(6,20,50,0.35), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.18);
     z-index: 1;
     transition: all 0.35s ease;
   }
   .celda.activa{
     background: var(--verde-activa);
     color: var(--blanco);
-    border-color: var(--verde-activa);
     transform: translate(-50%,-50%) scale(1.28);
     box-shadow: 0 0 0 6px rgba(60,197,131,0.25);
   }
-  .celda.correcta{ background: var(--verde-correcta); color:#fff; border-color: var(--verde-correcta); }
-  .celda.incorrecta{ background: var(--rojo-incorrecta); color:#fff; border-color: var(--rojo-incorrecta); }
-  .celda.pasada{ background: var(--azul-pasada); color: var(--azul-oscuro); border-style: dashed; border-color: var(--blanco); }
+  .celda.correcta{ background: var(--verde-correcta); color:#fff; }
+  .celda.incorrecta{ background: var(--rojo-incorrecta); color:#fff; }
+  .celda.pasada{ background: var(--azul-pasada); color: var(--azul-oscuro); border: 2px dashed var(--blanco); box-shadow: none; }
 
   .flash-correcta .centro-juego{ animation: destello-verde 0.5s ease; }
   .flash-incorrecta .centro-juego{ animation: destello-rojo 0.5s ease; }
@@ -349,7 +349,7 @@
 
   var CONFIG = {
     RADIO_PORCENTAJE: 43,
-    TAMANO_CELDA_PORCENTAJE: 11,
+    TAMANO_CELDA_PORCENTAJE: 8.6,
     RETARDO_TRANSICION_MS: 1000,
     VOLUMEN_MUSICA: 0.35,
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
@@ -506,6 +506,7 @@
     elRespuestaTexto.classList.remove("es-acierto", "es-fallo");
     elBtnComprobar.disabled = false;
     elBtnPasa.disabled = false;
+    elInputRespuesta.focus();
   }
 
   function pasarPalabra(){
