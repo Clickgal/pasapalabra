@@ -6,7 +6,7 @@
 <title>Pasapalabra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --azul-claro: #5FB3F6;
@@ -22,7 +22,7 @@
     --verde-correcta: #2FAF6E;
     --rojo-incorrecta: #E5504A;
     --gris-neutro: #7C93B8;
-    --fuente-display: "Fraunces", serif;
+    --fuente-display: "Baloo 2", sans-serif;
     --fuente-cuerpo: "Space Grotesk", sans-serif;
   }
 
@@ -53,11 +53,10 @@
 
   h1{
     font-family: var(--fuente-display);
-    font-weight: 900;
-    font-style: italic;
-    font-size: 28px;
+    font-weight: 800;
+    font-size: 26px;
     margin:0;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     color: var(--blanco);
   }
 
@@ -104,41 +103,33 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    gap: 18px;
+    gap: 26px;
     padding: 10px 6px 40px;
-  }
-  #pantallaInicio .intro-letra{
-    font-family: var(--fuente-display);
-    font-style: italic;
-    font-weight: 700;
-    font-size: 64px;
-    color: var(--blanco);
-    line-height: 1;
   }
   #pantallaInicio p{
     color: var(--blanco-tenue);
     font-size: 15px;
     line-height: 1.5;
-    max-width: 320px;
+    max-width: 300px;
+    margin: 0;
   }
 
-  .boton{
-    font-family: var(--fuente-cuerpo);
+  .boton-redondo{
+    font-family: var(--fuente-display);
     font-weight: 700;
-    font-size: 15px;
+    font-size: 19px;
+    width: 148px;
+    height: 148px;
+    border-radius: 50%;
     border: none;
-    border-radius: 999px;
-    padding: 14px 22px;
+    background: var(--blanco);
+    color: var(--azul-oscuro);
     cursor: pointer;
     user-select: none;
     touch-action: manipulation;
+    box-shadow: 0 14px 30px -8px rgba(11,44,102,0.55);
   }
-  .boton-principal{
-    background: var(--blanco);
-    color: var(--azul-oscuro);
-    box-shadow: 0 8px 20px -6px rgba(11,44,102,0.45);
-  }
-  .boton-principal:active{ transform: scale(0.97); }
+  .boton-redondo:active{ transform: scale(0.96); }
 
   /* ---- ROSCO ---- */
   .rosco{
@@ -162,7 +153,7 @@
   .centro-juego{
     position:absolute; top:50%; left:50%;
     transform: translate(-50%,-50%);
-    width: min(68%, 280px);
+    width: min(70%, 290px);
     text-align:center;
     z-index: 2;
     display:flex;
@@ -187,6 +178,23 @@
     line-height: 1.35;
     color: var(--blanco);
   }
+
+  .input-respuesta{
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(255,255,255,0.55);
+    color: var(--blanco);
+    font-family: var(--fuente-cuerpo);
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    padding: 6px 4px;
+    outline: none;
+  }
+  .input-respuesta::placeholder{ color: rgba(255,255,255,0.6); }
+  .input-respuesta:disabled{ opacity: 0.7; }
+
   .respuesta-texto{
     margin:0;
     font-size: 13px;
@@ -196,20 +204,35 @@
     border-radius: 10px;
     padding: 7px 10px;
   }
+  .respuesta-texto.es-fallo{ background: rgba(255,255,255,0.94); color: var(--rojo-incorrecta); }
+  .respuesta-texto.es-acierto{ background: rgba(255,255,255,0.94); color: var(--verde-correcta); }
+
   .contador-mini{
     font-size: 11px;
     color: var(--blanco-tenue);
     letter-spacing: 0.4px;
   }
-  .botones{
-    display:flex; gap: 8px;
-    width: 100%;
+
+  .botones-icono{
+    display:flex; gap: 16px;
+    align-items:center;
+    justify-content:center;
   }
-  .botones .boton{ flex:1; padding: 10px 8px; font-size: 12.5px; }
-  #btnPasa{ background: rgba(255,255,255,0.14); color: var(--blanco); border: 1.5px solid rgba(255,255,255,0.5); }
-  #btnVer{ background: var(--blanco); color: var(--azul-oscuro); }
-  .btn-fallo{ background: var(--rojo-incorrecta); color: #fff; }
-  .btn-acierto{ background: var(--verde-correcta); color: #fff; }
+  .boton-icono{
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--azul-oscuro);
+    color: var(--blanco);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 14px -4px rgba(11,44,102,0.6);
+  }
+  .boton-icono:active{ transform: scale(0.94); }
+  .boton-icono:disabled{ opacity: 0.5; }
 
   .celda{
     position:absolute;
@@ -252,8 +275,8 @@
   }
   #finTitulo{
     font-family: var(--fuente-display);
-    font-style: italic;
-    font-size: 30px;
+    font-weight: 800;
+    font-size: 28px;
     margin: 0;
     color: var(--blanco);
   }
@@ -290,9 +313,8 @@
   <div class="timer-texto" id="textoTiempo">02:30</div>
 
   <div class="pantalla" id="pantallaInicio">
-    <div class="intro-letra">Ñ</div>
-    <p>25 letras, una pregunta por cada una y dos minutos y medio en el reloj. Pasapalabra si dudas, pero cuidado: vuelve al final de la cola. ¿Completas el rosco?</p>
-    <button class="boton boton-principal" id="btnJugar">Empezar a jugar</button>
+    <p>25 letras, una pregunta por cada una y dos minutos y medio en el reloj. Escribe tu respuesta y compruébala al momento, o pasa a la siguiente si dudas.</p>
+    <button class="boton-redondo" id="btnJugar">Comenzar</button>
   </div>
 
   <div class="pantalla oculto" id="pantallaJuego">
@@ -300,15 +322,14 @@
       <div class="centro-juego" id="centroJuego">
         <div class="badge-tipo" id="preguntaTipo">Empieza por A</div>
         <p class="pregunta-texto" id="preguntaTexto"></p>
+
+        <input type="text" class="input-respuesta" id="inputRespuesta" placeholder="Escribe aquí tu respuesta" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+
         <p class="respuesta-texto oculto" id="respuestaTexto"></p>
 
-        <div class="botones" id="botonesPre">
-          <button class="boton" id="btnPasa">Pasapalabra</button>
-          <button class="boton" id="btnVer">Ver respuesta</button>
-        </div>
-        <div class="botones oculto" id="botonesPost">
-          <button class="boton btn-fallo" id="btnFalle">Fallé</button>
-          <button class="boton btn-acierto" id="btnAcerte">Acerté</button>
+        <div class="botones-icono" id="botonesIcono">
+          <button class="boton-icono" id="btnComprobar" title="Comprobar">✓</button>
+          <button class="boton-icono" id="btnPasa" title="Pasapalabra">»</button>
         </div>
 
         <div class="contador-mini" id="contadorMini">Quedan 25 de 25</div>
@@ -320,7 +341,7 @@
     <h2 id="finTitulo"></h2>
     <p id="finResumen"></p>
     <div class="rosco-final" id="roscoFinal"></div>
-    <button class="boton boton-principal" id="btnReiniciar">Jugar otra vez</button>
+    <button class="boton-redondo" id="btnReiniciar">Otra vez</button>
   </div>
 
 </div>
@@ -334,6 +355,7 @@
     RADIO_PORCENTAJE: 43,
     TAMANO_CELDA_PORCENTAJE: 11,
     UMBRAL_TIEMPO_URGENTE: 20,
+    RETARDO_TRANSICION_MS: 1000,
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
   };
 
@@ -446,17 +468,13 @@
   var elPantallaFin = document.getElementById("pantallaFin");
   var elBtnJugar = document.getElementById("btnJugar");
   var elRosco = document.getElementById("rosco");
-  var elCentroJuego = document.getElementById("centroJuego");
   var elContadorMini = document.getElementById("contadorMini");
   var elPreguntaTipo = document.getElementById("preguntaTipo");
   var elPreguntaTexto = document.getElementById("preguntaTexto");
+  var elInputRespuesta = document.getElementById("inputRespuesta");
   var elRespuestaTexto = document.getElementById("respuestaTexto");
-  var elBotonesPre = document.getElementById("botonesPre");
-  var elBotonesPost = document.getElementById("botonesPost");
+  var elBtnComprobar = document.getElementById("btnComprobar");
   var elBtnPasa = document.getElementById("btnPasa");
-  var elBtnVer = document.getElementById("btnVer");
-  var elBtnFalle = document.getElementById("btnFalle");
-  var elBtnAcerte = document.getElementById("btnAcerte");
   var elBarraTiempo = document.getElementById("barraTiempo");
   var elTextoTiempo = document.getElementById("textoTiempo");
   var elMarcadorAciertos = document.getElementById("marcadorAciertos");
@@ -473,10 +491,19 @@
   var segundosRestantes = CONFIG.DURACION_SEGUNDOS;
   var idIntervalo = null;
   var celdasDom = [];
+  var enTransicion = false;
 
   function elegirPreguntaAleatoria(letra){
     var opciones = BANCO_PREGUNTAS[letra];
     return opciones[Math.floor(Math.random() * opciones.length)];
+  }
+
+  function normalizar(texto){
+    return texto
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
   }
 
   function vibrar(patron){
@@ -510,6 +537,7 @@
     colaTurnos = estadoLetras.map(function(_, i){ return i; });
     punteroTurno = 0;
     segundosRestantes = CONFIG.DURACION_SEGUNDOS;
+    enTransicion = false;
 
     construirRosco();
     actualizarMarcador();
@@ -541,13 +569,17 @@
     elContadorMini.textContent = "Quedan " + colaTurnos.length + " de 25";
     elPreguntaTipo.textContent = item.tipo;
     elPreguntaTexto.textContent = item.texto;
-    elRespuestaTexto.textContent = item.respuesta;
+
+    elInputRespuesta.value = "";
+    elInputRespuesta.disabled = false;
     elRespuestaTexto.classList.add("oculto");
-    elBotonesPre.classList.remove("oculto");
-    elBotonesPost.classList.add("oculto");
+    elRespuestaTexto.classList.remove("es-acierto", "es-fallo");
+    elBtnComprobar.disabled = false;
+    elBtnPasa.disabled = false;
   }
 
   function pasarPalabra(){
+    if (enTransicion) return;
     if (colaTurnos.length <= 1) return;
     var idx = indiceActual();
     estadoLetras[idx].pasada = true;
@@ -558,10 +590,33 @@
     mostrarTurnoActual();
   }
 
-  function verRespuesta(){
+  function comprobarRespuesta(){
+    if (enTransicion) return;
+    var valor = elInputRespuesta.value;
+    if (valor.trim() === "") return;
+
+    var idx = indiceActual();
+    var item = estadoLetras[idx];
+    var acierto = normalizar(valor) === normalizar(item.respuesta);
+
+    enTransicion = true;
+    elInputRespuesta.disabled = true;
+    elBtnComprobar.disabled = true;
+    elBtnPasa.disabled = true;
+
+    elRespuestaTexto.textContent = acierto ? ("¡Correcto! " + item.respuesta) : ("Era: " + item.respuesta);
     elRespuestaTexto.classList.remove("oculto");
-    elBotonesPre.classList.add("oculto");
-    elBotonesPost.classList.remove("oculto");
+    elRespuestaTexto.classList.add(acierto ? "es-acierto" : "es-fallo");
+
+    elRosco.classList.remove("flash-correcta", "flash-incorrecta");
+    void elRosco.offsetWidth;
+    elRosco.classList.add(acierto ? "flash-correcta" : "flash-incorrecta");
+    vibrar(acierto ? 45 : [40, 40, 40]);
+
+    setTimeout(function(){
+      enTransicion = false;
+      resolverTurno(acierto);
+    }, CONFIG.RETARDO_TRANSICION_MS);
   }
 
   function resolverTurno(acierto){
@@ -569,11 +624,6 @@
     estadoLetras[idx].estado = acierto ? "correcta" : "incorrecta";
     celdasDom[idx].classList.remove("activa", "pasada");
     celdasDom[idx].classList.add(acierto ? "correcta" : "incorrecta");
-
-    elRosco.classList.remove("flash-correcta", "flash-incorrecta");
-    void elRosco.offsetWidth;
-    elRosco.classList.add(acierto ? "flash-correcta" : "flash-incorrecta");
-    vibrar(acierto ? 45 : [40, 40, 40]);
 
     colaTurnos.splice(punteroTurno, 1);
     if (colaTurnos.length > 0 && punteroTurno >= colaTurnos.length) punteroTurno = 0;
@@ -664,10 +714,11 @@
   // ---- Eventos ----
   elBtnJugar.addEventListener("click", iniciarPartida);
   elBtnPasa.addEventListener("click", pasarPalabra);
-  elBtnVer.addEventListener("click", verRespuesta);
-  elBtnFalle.addEventListener("click", function(){ resolverTurno(false); });
-  elBtnAcerte.addEventListener("click", function(){ resolverTurno(true); });
+  elBtnComprobar.addEventListener("click", comprobarRespuesta);
   elBtnReiniciar.addEventListener("click", iniciarPartida);
+  elInputRespuesta.addEventListener("keydown", function(e){
+    if (e.key === "Enter"){ e.preventDefault(); comprobarRespuesta(); }
+  });
 
 })();
 </script>
