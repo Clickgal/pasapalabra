@@ -162,29 +162,29 @@
   .centro-juego{
     position:absolute; top:50%; left:50%;
     transform: translate(-50%,-50%);
-    width: min(70%, 290px);
+    width: min(72%, 290px);
     text-align:center;
     z-index: 2;
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap: 10px;
+    gap: 7px;
   }
   .badge-tipo{
     background: var(--blanco);
     color: var(--azul-oscuro);
     font-weight: 700;
-    font-size: 12px;
+    font-size: 10.5px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    padding: 6px 14px;
+    padding: 4px 10px;
     border-radius: 999px;
   }
   .pregunta-texto{
     margin:0;
-    font-size: clamp(13px, 3.6vw, 16px);
+    font-size: clamp(11px, 3.2vw, 14px);
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.3;
     color: var(--blanco);
   }
 
@@ -196,9 +196,9 @@
     color: var(--blanco);
     font-family: var(--fuente-cuerpo);
     font-weight: 600;
-    font-size: 14px;
+    font-size: 12.5px;
     text-align: center;
-    padding: 6px 4px;
+    padding: 4px 3px;
     outline: none;
   }
   .input-respuesta::placeholder{ color: rgba(255,255,255,0.6); }
@@ -206,29 +206,29 @@
 
   .respuesta-texto{
     margin:0;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--azul-oscuro);
     background: rgba(255,255,255,0.94);
     border-radius: 10px;
-    padding: 7px 10px;
+    padding: 5px 9px;
   }
   .respuesta-texto.es-fallo{ background: rgba(255,255,255,0.94); color: var(--rojo-incorrecta); }
   .respuesta-texto.es-acierto{ background: rgba(255,255,255,0.94); color: var(--verde-correcta); }
 
   .botones-icono{
-    display:flex; gap: 14px;
+    display:flex; gap: 10px;
     align-items:center;
     justify-content:center;
   }
   .boton-icono{
-    width: 84px;
-    height: 44px;
+    width: 66px;
+    height: 34px;
     border-radius: 999px;
     border: none;
     background: var(--azul-oscuro);
     color: var(--blanco);
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     display:flex; align-items:center; justify-content:center;
@@ -239,7 +239,7 @@
 
   .celda{
     position:absolute;
-    width: 8%;
+    width: 8.6%;
     aspect-ratio: 1;
     transform: translate(-50%,-50%);
     border-radius: 50%;
@@ -350,22 +350,23 @@
 
   var CONFIG = {
     RADIO_PORCENTAJE: 43,
-    TAMANO_CELDA_PORCENTAJE: 8.0,
+    TAMANO_CELDA_PORCENTAJE: 8.6,
     RETARDO_TRANSICION_MS: 1000,
     VOLUMEN_MUSICA: 0.35,
+    VOLUMEN_MUSICA_DUCKING: 0.08,
+    DURACION_DUCKING_MS: 900,
     FRECUENCIA_PASAPALABRA_INICIO: 4200,
     FRECUENCIA_PASAPALABRA_FIN: 700,
     DURACION_PASAPALABRA: 0.32,
     VOLUMEN_PASAPALABRA: 0.65,
     Q_PASAPALABRA: 1.3,
-    DIFICULTADES: ["facil", "media", "dificil"],
-    LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+    LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
   };
 
   // El banco de preguntas (BANCO_PREGUNTAS) llega desde preguntas.js,
   // cargado antes que este script.
 
-  var LETRAS_TIPO_CONTIENE = ["K", "Ñ", "W"];
+  var LETRAS_TIPO_CONTIENE = ["Ñ"];
 
   function tipoParaLetra(letra){
     return LETRAS_TIPO_CONTIENE.indexOf(letra) !== -1 ? "Contiene la " + letra : "Empieza por " + letra;
@@ -404,6 +405,16 @@
   var enTransicion = false;
   var sonidoActivado = true;
   var contextoAudio = null;
+  var idTimeoutDuckMusica = null;
+
+  function agacharMusicaTemporalmente(){
+    if (elMusicaFondo.paused) return;
+    elMusicaFondo.volume = CONFIG.VOLUMEN_MUSICA_DUCKING;
+    clearTimeout(idTimeoutDuckMusica);
+    idTimeoutDuckMusica = setTimeout(function(){
+      elMusicaFondo.volume = CONFIG.VOLUMEN_MUSICA;
+    }, CONFIG.DURACION_DUCKING_MS);
+  }
 
   function obtenerContextoAudio(){
     var ClaseAudioContext = window.AudioContext || window.webkitAudioContext;
@@ -415,18 +426,21 @@
 
   function reproducirSonidoAcierto(){
     if (!sonidoActivado) return;
+    agacharMusicaTemporalmente();
     elSonidoAcierto.currentTime = 0;
     elSonidoAcierto.play().catch(function(){ /* sin interacción previa del usuario */ });
   }
 
   function reproducirSonidoError(){
     if (!sonidoActivado) return;
+    agacharMusicaTemporalmente();
     elSonidoFallo.currentTime = 0;
     elSonidoFallo.play().catch(function(){ /* sin interacción previa del usuario */ });
   }
 
   function reproducirSonidoPasapalabra(){
     if (!sonidoActivado) return;
+    agacharMusicaTemporalmente();
     var ctx = obtenerContextoAudio();
     if (!ctx) return;
     var inicio = ctx.currentTime;
@@ -480,33 +494,12 @@
     }
   }
 
-  function mezclarArray(array){
-    var copia = array.slice();
-    for (var i = copia.length - 1; i > 0; i--){
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = copia[i];
-      copia[i] = copia[j];
-      copia[j] = temp;
-    }
-    return copia;
-  }
-
-  // Reparte las dificultades entre las letras del rosco a partes iguales
-  // (un poco de fácil, media y difícil siempre) y luego mezcla qué letra
-  // recibe cada dificultad, para que cada partida sea distinta.
-  function generarAsignacionDificultades(cantidadLetras){
-    var asignacion = [];
-    for (var i = 0; i < cantidadLetras; i++){
-      asignacion.push(CONFIG.DIFICULTADES[i % CONFIG.DIFICULTADES.length]);
-    }
-    return mezclarArray(asignacion);
-  }
-
-  function elegirPreguntaPorDificultad(letra, dificultad){
+  // Cada pregunta en BANCO_PREGUNTAS es un par [definicion, palabra].
+  // Elegimos una al azar por letra en cada partida.
+  function elegirPreguntaAleatoria(letra){
     var opciones = BANCO_PREGUNTAS[letra];
-    var filtradas = opciones.filter(function(p){ return p.dificultad === dificultad; });
-    var candidatas = filtradas.length > 0 ? filtradas : opciones;
-    return candidatas[Math.floor(Math.random() * candidatas.length)];
+    var par = opciones[Math.floor(Math.random() * opciones.length)];
+    return { texto: par[0], respuesta: par[1] };
   }
 
   function normalizar(texto){
@@ -541,10 +534,9 @@
   }
 
   function iniciarPartida(){
-    var dificultadesAsignadas = generarAsignacionDificultades(CONFIG.LETRAS_ROSCO.length);
-    estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra, i){
-      var p = elegirPreguntaPorDificultad(letra, dificultadesAsignadas[i]);
-      return { letra: letra, tipo: tipoParaLetra(letra), categoria: p.categoria, dificultad: p.dificultad, texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
+    estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra){
+      var p = elegirPreguntaAleatoria(letra);
+      return { letra: letra, tipo: tipoParaLetra(letra), texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
     });
     colaTurnos = estadoLetras.map(function(_, i){ return i; });
     punteroTurno = 0;
