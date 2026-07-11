@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="preguntas.js"></script>
+<script src="preguntasfamosos.js"></script>
 <style>
   :root{
     --azul-claro: #5FB3F6;
@@ -360,6 +361,7 @@
     DURACION_PASAPALABRA: 0.32,
     VOLUMEN_PASAPALABRA: 0.65,
     Q_PASAPALABRA: 1.3,
+    CANTIDAD_PREGUNTAS_FAMOSOS: 2,
     LETRAS_ROSCO: ["A","B","C","D","E","F","G","H","I","J","L","M","N","Ñ","O","P","Q","R","S","T","U","V","X","Y","Z"]
   };
 
@@ -502,6 +504,37 @@
     return { texto: par[0], respuesta: par[1] };
   }
 
+  // BANCO_PREGUNTAS_FAMOSOS llega desde preguntasfamosos.js, con el mismo
+  // formato { LETRA: [[definicion, palabra], ...] }. Puede no existir o
+  // venir incompleto para alguna letra; se comprueba antes de usarlo.
+  function elegirPreguntaAleatoriaFamosos(letra){
+    var opciones = BANCO_PREGUNTAS_FAMOSOS[letra];
+    var par = opciones[Math.floor(Math.random() * opciones.length)];
+    return { texto: par[0], respuesta: par[1] };
+  }
+
+  function mezclarArray(array){
+    var copia = array.slice();
+    for (var i = copia.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = copia[i];
+      copia[i] = copia[j];
+      copia[j] = temp;
+    }
+    return copia;
+  }
+
+  // Elige, al azar, un puñado de letras del rosco que usarán el banco de
+  // famosos en esta partida (solo entre las letras que sí tienen preguntas
+  // ahí disponibles).
+  function elegirLetrasParaFamosos(){
+    if (typeof BANCO_PREGUNTAS_FAMOSOS === "undefined") return [];
+    var letrasConFamosos = CONFIG.LETRAS_ROSCO.filter(function(letra){
+      return BANCO_PREGUNTAS_FAMOSOS[letra] && BANCO_PREGUNTAS_FAMOSOS[letra].length > 0;
+    });
+    return mezclarArray(letrasConFamosos).slice(0, CONFIG.CANTIDAD_PREGUNTAS_FAMOSOS);
+  }
+
   function normalizar(texto){
     return texto
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -534,9 +567,11 @@
   }
 
   function iniciarPartida(){
+    var letrasFamosos = elegirLetrasParaFamosos();
     estadoLetras = CONFIG.LETRAS_ROSCO.map(function(letra){
-      var p = elegirPreguntaAleatoria(letra);
-      return { letra: letra, tipo: tipoParaLetra(letra), texto: p.texto, respuesta: p.respuesta, estado: "pendiente", pasada: false };
+      var esFamosos = letrasFamosos.indexOf(letra) !== -1;
+      var p = esFamosos ? elegirPreguntaAleatoriaFamosos(letra) : elegirPreguntaAleatoria(letra);
+      return { letra: letra, tipo: tipoParaLetra(letra), texto: p.texto, respuesta: p.respuesta, esFamosos: esFamosos, estado: "pendiente", pasada: false };
     });
     colaTurnos = estadoLetras.map(function(_, i){ return i; });
     punteroTurno = 0;
